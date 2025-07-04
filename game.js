@@ -404,11 +404,83 @@ class MainMenuScene extends Phaser.Scene {
       this.scene.start('LeaderboardScene');
     });
     
+    // Settings Button - positioned below the main buttons
+    const settingsButton = this.add.text(GAME_CONFIG.WIDTH / 2, 380, '⚙️ SETTINGS', {
+      fontSize: '24px',
+      fill: '#ffffff',
+      fontFamily: 'Arial',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 2,
+      backgroundColor: '#2196F3',
+      padding: { x: 25, y: 12 },
+      borderRadius: 15,
+      shadow: {
+        offsetX: 2,
+        offsetY: 2,
+        color: '#000000',
+        blur: 4,
+        fill: true
+      }
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true }).setDepth(10);
+
+    // Settings button interaction events
+    settingsButton.on('pointerover', () => {
+      this.tweens.add({
+        targets: settingsButton,
+        scaleX: 1.05,
+        scaleY: 1.05,
+        duration: 150,
+        ease: 'Power2'
+      });
+      settingsButton.setStyle({ 
+        fill: '#ffff00', 
+        backgroundColor: '#1976D2' 
+      });
+    });
+    
+    settingsButton.on('pointerout', () => {
+      this.tweens.add({
+        targets: settingsButton,
+        scaleX: 1,
+        scaleY: 1,
+        duration: 150,
+        ease: 'Power2'
+      });
+      settingsButton.setStyle({ 
+        fill: '#ffffff', 
+        backgroundColor: '#2196F3' 
+      });
+    });
+    
+    settingsButton.on('pointerdown', () => {
+      this.tweens.add({
+        targets: settingsButton,
+        scaleX: 0.95,
+        scaleY: 0.95,
+        duration: 100,
+        ease: 'Power2'
+      });
+      this.scene.start('SettingsScene');
+    });
+    
+    settingsButton.on('pointerup', () => {
+      this.tweens.add({
+        targets: settingsButton,
+        scaleX: 1.05,
+        scaleY: 1.05,
+        duration: 100,
+        ease: 'Power2'
+      });
+    });
+    
     // Add entrance animations for buttons
     playButton.setAlpha(0);
     leaderboardButton.setAlpha(0);
+    settingsButton.setAlpha(0);
     playButton.setY(300);
     leaderboardButton.setY(300);
+    settingsButton.setY(360);
     
     this.tweens.add({
       targets: playButton,
@@ -425,6 +497,15 @@ class MainMenuScene extends Phaser.Scene {
       y: 320,
       duration: 800,
       delay: 1100,
+      ease: 'Back.easeOut'
+    });
+    
+    this.tweens.add({
+      targets: settingsButton,
+      alpha: 1,
+      y: 380,
+      duration: 800,
+      delay: 1300,
       ease: 'Back.easeOut'
     });
   }
@@ -530,6 +611,630 @@ class MainMenuScene extends Phaser.Scene {
 }
 
 // ============================================================================
+// SETTINGS SCENE
+// ============================================================================
+
+class SettingsScene extends Phaser.Scene {
+  constructor() {
+    super('SettingsScene');
+  }
+
+  create() {
+    this.createBackground();
+    globalCloudManager.start(this);
+    this.createTitle();
+    this.createSettings();
+    this.createBackButton();
+  }
+
+  createBackground() {
+    this.add.rectangle(
+      GAME_CONFIG.WIDTH / 2, 
+      GAME_CONFIG.HEIGHT / 2, 
+      GAME_CONFIG.WIDTH, 
+      GAME_CONFIG.HEIGHT, 
+      0x87ceeb
+    );
+  }
+
+  createTitle() {
+    // Main title with modern styling
+    const titleText = this.add.text(GAME_CONFIG.WIDTH / 2, 80, '⚙️ SETTINGS', {
+      fontSize: '40px',
+      fill: '#ffffff',
+      fontFamily: 'Arial',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 4,
+      shadow: {
+        offsetX: 2,
+        offsetY: 2,
+        color: '#000000',
+        blur: 4,
+        fill: true
+      }
+    }).setOrigin(0.5);
+
+    // Add entrance animation
+    titleText.setAlpha(0);
+    titleText.setY(30);
+    
+    this.tweens.add({
+      targets: titleText,
+      alpha: 1,
+      y: 80,
+      duration: 1000,
+      ease: 'Back.easeOut'
+    });
+  }
+
+  createSettings() {
+    // Get current settings
+    const currentUsername = localStorage.getItem('username') || '';
+    const showAds = localStorage.getItem('showAds') !== 'false'; // Default to true
+
+    // Username section
+    this.add.text(GAME_CONFIG.WIDTH / 2, 150, '👤 USERNAME', {
+      fontSize: '24px',
+      fill: '#000',
+      fontFamily: 'Arial',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+
+    // Username input background - positioned to the left
+    const usernameBg = this.add.rectangle(
+      GAME_CONFIG.WIDTH / 2 - 100, 
+      190, 
+      200, 
+      40, 
+      0xffffff, 
+      0.9
+    ).setStrokeStyle(2, 0x000000, 0.3);
+
+    // Username text display with input functionality
+    this.usernameText = this.add.text(GAME_CONFIG.WIDTH / 2 - 100, 190, currentUsername || 'Click to enter name...', {
+      fontSize: '16px',
+      fill: currentUsername ? '#000' : '#666',
+      fontFamily: 'Arial',
+      align: 'center'
+    }).setOrigin(0.5);
+
+    // Make the entire username background clickable
+    usernameBg.setInteractive({ useHandCursor: true });
+    usernameBg.on('pointerdown', () => {
+      this.startUsernameInput();
+    });
+
+    // Change username button - positioned to the right
+    const changeUsernameButton = this.add.text(GAME_CONFIG.WIDTH / 2 + 100, 190, '✏️ CHANGE', {
+      fontSize: '18px',
+      fill: '#ffffff',
+      fontFamily: 'Arial',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 2,
+      backgroundColor: '#FF9800',
+      padding: { x: 20, y: 8 },
+      borderRadius: 8
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+    // Change button interaction
+    changeUsernameButton.on('pointerdown', () => {
+      this.startUsernameInput();
+    });
+
+    // Ads section
+    this.add.text(GAME_CONFIG.WIDTH / 2, 280, '📺 ADS SETTINGS', {
+      fontSize: '24px',
+      fill: '#000',
+      fontFamily: 'Arial',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+
+    // Calculate button positions for side-by-side layout like main menu
+    const buttonWidth = 160;
+    const gap = 40;
+    const totalWidth = buttonWidth * 2 + gap;
+    const startX = (GAME_CONFIG.WIDTH - totalWidth) / 2 + buttonWidth / 2;
+
+    // Enable ads button - left side
+    const enableAdsButton = this.add.text(startX, 320, '✅ ENABLE ADS', {
+      fontSize: '18px',
+      fill: '#ffffff',
+      fontFamily: 'Arial',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 2,
+      backgroundColor: showAds ? '#4CAF50' : '#666',
+      padding: { x: 15, y: 8 },
+      borderRadius: 8
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+    // Disable ads button - right side
+    const disableAdsButton = this.add.text(startX + buttonWidth + gap, 320, '❌ DISABLE ADS', {
+      fontSize: '18px',
+      fill: '#ffffff',
+      fontFamily: 'Arial',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 2,
+      backgroundColor: !showAds ? '#f44336' : '#666',
+      padding: { x: 15, y: 8 },
+      borderRadius: 8
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+    // Enable ads button interaction
+    enableAdsButton.on('pointerdown', () => {
+      localStorage.setItem('showAds', 'true');
+      enableAdsButton.setStyle({ backgroundColor: '#4CAF50' });
+      disableAdsButton.setStyle({ backgroundColor: '#666' });
+    });
+
+    // Disable ads button interaction
+    disableAdsButton.on('pointerdown', () => {
+      localStorage.setItem('showAds', 'false');
+      disableAdsButton.setStyle({ backgroundColor: '#f44336' });
+      enableAdsButton.setStyle({ backgroundColor: '#666' });
+    });
+
+    // Clear leaderboard section
+    this.add.text(GAME_CONFIG.WIDTH / 2, 400, '🗑️ CLEAR LEADERBOARD', {
+      fontSize: '24px',
+      fill: '#000',
+      fontFamily: 'Arial',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+
+    // Clear leaderboard button
+    const clearLeaderboardButton = this.add.text(GAME_CONFIG.WIDTH / 2, 440, '🗑️ CLEAR ALL SCORES', {
+      fontSize: '18px',
+      fill: '#ffffff',
+      fontFamily: 'Arial',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 2,
+      backgroundColor: '#f44336',
+      padding: { x: 20, y: 10 },
+      borderRadius: 8
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+    // Clear leaderboard button interaction
+    clearLeaderboardButton.on('pointerdown', () => {
+      this.showClearConfirmation(clearLeaderboardButton);
+    });
+
+    // Add entrance animations
+    [usernameBg, this.usernameText, changeUsernameButton, enableAdsButton, disableAdsButton, clearLeaderboardButton].forEach((element, index) => {
+      element.setAlpha(0);
+      element.setY(element.y + 50);
+      
+      this.tweens.add({
+        targets: element,
+        alpha: 1,
+        y: element.y - 50,
+        duration: 800,
+        delay: 500 + (index * 150),
+        ease: 'Back.easeOut'
+      });
+    });
+  }
+
+  startUsernameInput() {
+    // Create input field overlay with better visibility
+    const inputBg = this.add.rectangle(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2,
+      500,
+      200,
+      0x000000,
+      0.9
+    ).setDepth(20);
+
+    // Add border to background for better definition
+    inputBg.setStrokeStyle(3, 0xffffff, 0.3);
+
+    const inputBox = this.add.rectangle(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2 - 30,
+      400,
+      50,
+      0xffffff,
+      1
+    ).setDepth(21);
+
+    // Add border to input box
+    inputBox.setStrokeStyle(2, 0x000000, 0.5);
+
+    const inputLabel = this.add.text(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2 - 70,
+      'Enter your username:',
+      {
+        fontSize: '24px',
+        fill: '#ffffff',
+        fontFamily: 'Arial',
+        fontStyle: 'bold',
+        stroke: '#000000',
+        strokeThickness: 3
+      }
+    ).setOrigin(0.5).setDepth(21);
+
+    const inputText = this.add.text(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2 - 25,
+      '',
+      {
+        fontSize: '22px',
+        fill: '#000000',
+        fontFamily: 'Arial',
+        fontStyle: 'bold'
+      }
+    ).setOrigin(0.5, 0.5).setDepth(21);
+
+    // Create blinking cursor
+    const cursor = this.add.rectangle(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2 - 25,
+      3,
+      26,
+      0x000000,
+      1
+    ).setDepth(22);
+
+    // Cursor blinking animation
+    this.tweens.add({
+      targets: cursor,
+      alpha: 0,
+      duration: 500,
+      yoyo: true,
+      repeat: -1
+    });
+
+    // Calculate button positions for side-by-side layout like main menu
+    const buttonWidth = 140;
+    const gap = 100;
+    const totalWidth = buttonWidth * 2 + gap;
+    const startX = (GAME_CONFIG.WIDTH - totalWidth) / 2 + buttonWidth / 2;
+
+    const saveButton = this.add.text(
+      startX,
+      GAME_CONFIG.HEIGHT / 2 + 50,
+      '💾 SAVE',
+      {
+        fontSize: '20px',
+        fill: '#ffffff',
+        fontFamily: 'Arial',
+        fontStyle: 'bold',
+        backgroundColor: '#4CAF50',
+        padding: { x: 30, y: 15 },
+        borderRadius: 12,
+        stroke: '#000000',
+        strokeThickness: 3
+      }
+    ).setOrigin(0.5).setInteractive({ useHandCursor: true }).setDepth(21);
+
+    const cancelButton = this.add.text(
+      startX + buttonWidth + gap,
+      GAME_CONFIG.HEIGHT / 2 + 50,
+      '❌ CANCEL',
+      {
+        fontSize: '20px',
+        fill: '#ffffff',
+        fontFamily: 'Arial',
+        fontStyle: 'bold',
+        backgroundColor: '#f44336',
+        padding: { x: 30, y: 15 },
+        borderRadius: 12,
+        stroke: '#000000',
+        strokeThickness: 3
+      }
+    ).setOrigin(0.5).setInteractive({ useHandCursor: true }).setDepth(21);
+
+    // Handle keyboard input
+    let currentInput = localStorage.getItem('username') || '';
+    inputText.setText(currentInput);
+    
+    // Position cursor at the end of existing text
+    const updateCursorPosition = () => {
+      const textWidth = inputText.width;
+      cursor.setX(GAME_CONFIG.WIDTH / 2 + textWidth / 2);
+      cursor.setY(GAME_CONFIG.HEIGHT / 2 - 25);
+    };
+    
+    // Initial cursor position
+    updateCursorPosition();
+    
+    this.input.keyboard.on('keydown', (event) => {
+      if (event.key === 'Enter') {
+        this.saveUsername(currentInput, [inputBg, inputBox, inputLabel, inputText, cursor, saveButton, cancelButton]);
+      } else if (event.key === 'Escape') {
+        this.cancelUsernameInput([inputBg, inputBox, inputLabel, inputText, cursor, saveButton, cancelButton]);
+      } else if (event.key === 'Backspace') {
+        currentInput = currentInput.slice(0, -1);
+        inputText.setText(currentInput);
+        updateCursorPosition();
+      } else if (event.key.length === 1 && currentInput.length < 20) {
+        currentInput += event.key;
+        inputText.setText(currentInput);
+        updateCursorPosition();
+      }
+    });
+
+    // Save button interaction
+    saveButton.on('pointerdown', () => {
+      this.saveUsername(currentInput, [inputBg, inputBox, inputLabel, inputText, cursor, saveButton, cancelButton]);
+    });
+
+    // Cancel button interaction
+    cancelButton.on('pointerdown', () => {
+      this.cancelUsernameInput([inputBg, inputBox, inputLabel, inputText, cursor, saveButton, cancelButton]);
+    });
+
+    // Focus on input
+    this.input.keyboard.enabled = true;
+  }
+
+  saveUsername(username, elements) {
+    if (username.trim()) {
+      const oldUsername = localStorage.getItem('username') || '';
+      const newUsername = username.trim();
+      
+      localStorage.setItem('username', newUsername);
+      this.usernameText.setText(newUsername);
+      this.usernameText.setStyle({ fill: '#000' });
+      
+      // Update existing leaderboard entries with new username
+      if (oldUsername !== newUsername) {
+        this.updateLeaderboardUsernames(oldUsername, newUsername);
+      }
+    }
+    this.cancelUsernameInput(elements);
+  }
+
+  updateLeaderboardUsernames(oldUsername, newUsername) {
+    if (!oldUsername) return; // Skip if there was no previous username
+    
+    const leaderboard = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+    let updated = false;
+    
+    // Update all entries that match the old username
+    leaderboard.forEach(entry => {
+      if (entry.username === oldUsername) {
+        entry.username = newUsername;
+        updated = true;
+      }
+    });
+    
+    // Save updated leaderboard if changes were made
+    if (updated) {
+      localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+    }
+  }
+
+  cancelUsernameInput(elements) {
+    elements.forEach(element => element.destroy());
+    this.input.keyboard.off('keydown');
+  }
+
+  showClearConfirmation(clearButton) {
+    // Create confirmation overlay
+    const confirmBg = this.add.rectangle(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2,
+      500,
+      200,
+      0x000000,
+      0.9
+    ).setDepth(30);
+
+    // Add border to background
+    confirmBg.setStrokeStyle(3, 0xffffff, 0.3);
+
+    const confirmTitle = this.add.text(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2 - 80,
+      '⚠️ CONFIRM CLEAR',
+      {
+        fontSize: '26px',
+        fill: '#ffffff',
+        fontFamily: 'Arial',
+        fontStyle: 'bold',
+        stroke: '#000000',
+        strokeThickness: 3
+      }
+    ).setOrigin(0.5).setDepth(31);
+
+    const confirmMessage = this.add.text(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2 - 25,
+      'Are you sure you want to clear all\nleaderboard scores?\nThis action cannot be undone!',
+      {
+        fontSize: '18px',
+        fill: '#ffffff',
+        fontFamily: 'Arial',
+        align: 'center',
+        lineSpacing: 10,
+        stroke: '#000000',
+        strokeThickness: 1
+      }
+    ).setOrigin(0.5).setDepth(31);
+
+    // Calculate button positions for side-by-side layout like main menu
+    const buttonWidth = 140;
+    const gap = 100;
+    const totalWidth = buttonWidth * 2 + gap;
+    const startX = (GAME_CONFIG.WIDTH - totalWidth) / 2 + buttonWidth / 2;
+
+    const yesButton = this.add.text(
+      startX,
+      GAME_CONFIG.HEIGHT / 2 + 50,
+      '✅ YES, CLEAR',
+      {
+        fontSize: '20px',
+        fill: '#ffffff',
+        fontFamily: 'Arial',
+        fontStyle: 'bold',
+        backgroundColor: '#f44336',
+        padding: { x: 30, y: 15 },
+        borderRadius: 12,
+        stroke: '#000000',
+        strokeThickness: 3
+      }
+    ).setOrigin(0.5).setInteractive({ useHandCursor: true }).setDepth(31);
+
+    const noButton = this.add.text(
+      startX + buttonWidth + gap,
+      GAME_CONFIG.HEIGHT / 2 + 50,
+      '❌ CANCEL',
+      {
+        fontSize: '20px',
+        fill: '#ffffff',
+        fontFamily: 'Arial',
+        fontStyle: 'bold',
+        backgroundColor: '#666',
+        padding: { x: 30, y: 15 },
+        borderRadius: 12,
+        stroke: '#000000',
+        strokeThickness: 3
+      }
+    ).setOrigin(0.5).setInteractive({ useHandCursor: true }).setDepth(31);
+
+    // Yes button interaction
+    yesButton.on('pointerdown', () => {
+      // Clear leaderboard and reset high score
+      localStorage.removeItem('leaderboard');
+      localStorage.removeItem('highScore');
+      localStorage.setItem('highScore', '0');
+      
+      clearButton.setText('✅ CLEARED!');
+      clearButton.setStyle({ backgroundColor: '#4CAF50' });
+      
+      // Reset button after 2 seconds
+      setTimeout(() => {
+        clearButton.setText('🗑️ CLEAR ALL SCORES');
+        clearButton.setStyle({ backgroundColor: '#f44336' });
+      }, 2000);
+      
+      this.closeClearConfirmation([confirmBg, confirmTitle, confirmMessage, yesButton, noButton]);
+    });
+
+    // No button interaction
+    noButton.on('pointerdown', () => {
+      this.closeClearConfirmation([confirmBg, confirmTitle, confirmMessage, yesButton, noButton]);
+    });
+
+    // Add entrance animation
+    [confirmBg, confirmTitle, confirmMessage, yesButton, noButton].forEach((element, index) => {
+      element.setAlpha(0);
+      element.setScale(0.8);
+      
+      this.tweens.add({
+        targets: element,
+        alpha: 1,
+        scale: 1,
+        duration: 300,
+        delay: index * 50,
+        ease: 'Back.easeOut'
+      });
+    });
+  }
+
+  closeClearConfirmation(elements) {
+    // Add exit animation
+    elements.forEach((element, index) => {
+      this.tweens.add({
+        targets: element,
+        alpha: 0,
+        scale: 0.8,
+        duration: 200,
+        delay: index * 30,
+        ease: 'Power2',
+        onComplete: () => {
+          element.destroy();
+        }
+      });
+    });
+  }
+
+  createBackButton() {
+    // Modern button styling to match main menu
+    const buttonStyle = {
+      fontSize: '28px',
+      fill: '#ffffff',
+      fontFamily: 'Arial',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 2,
+      backgroundColor: '#4CAF50',
+      padding: { x: 30, y: 15 },
+      borderRadius: 10,
+      shadow: {
+        offsetX: 2,
+        offsetY: 2,
+        color: '#000000',
+        blur: 4,
+        fill: true
+      }
+    };
+    
+    const buttonHoverStyle = {
+      ...buttonStyle,
+      backgroundColor: '#45a049',
+      fill: '#ffff00'
+    };
+    
+    const backButton = this.add.text(GAME_CONFIG.WIDTH / 2, 520, '← BACK TO MENU', buttonStyle)
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true })
+      .setDepth(10);
+
+    // Enhanced button interaction events with smooth animations
+    backButton.on('pointerover', () => {
+      this.tweens.add({
+        targets: backButton,
+        scaleX: 1.05,
+        scaleY: 1.05,
+        duration: 150,
+        ease: 'Power2'
+      });
+      backButton.setStyle(buttonHoverStyle);
+    });
+    
+    backButton.on('pointerout', () => {
+      this.tweens.add({
+        targets: backButton,
+        scaleX: 1,
+        scaleY: 1,
+        duration: 150,
+        ease: 'Power2'
+      });
+      backButton.setStyle(buttonStyle);
+    });
+    
+    backButton.on('pointerdown', () => {
+      this.tweens.add({
+        targets: backButton,
+        scaleX: 0.95,
+        scaleY: 0.95,
+        duration: 100,
+        ease: 'Power2'
+      });
+      this.scene.start('MainMenuScene');
+    });
+    
+    backButton.on('pointerup', () => {
+      this.tweens.add({
+        targets: backButton,
+        scaleX: 1.05,
+        scaleY: 1.05,
+        duration: 100,
+        ease: 'Power2'
+      });
+    });
+  }
+}
+
+// ============================================================================
 // LEADERBOARD SCENE
 // ============================================================================
 
@@ -627,21 +1332,21 @@ class LeaderboardScene extends Phaser.Scene {
       fontStyle: 'bold'
     }).setOrigin(0.5);
 
-    this.add.text(300, 150, 'SCORE', {
+    this.add.text(280, 150, 'PLAYER', {
       fontSize: '20px',
       fill: '#000',
       fontFamily: 'Arial',
       fontStyle: 'bold'
     }).setOrigin(0.5);
 
-    this.add.text(450, 150, 'LEVEL', {
+    this.add.text(450, 150, 'SCORE', {
       fontSize: '20px',
       fill: '#000',
       fontFamily: 'Arial',
       fontStyle: 'bold'
     }).setOrigin(0.5);
 
-    this.add.text(600, 150, 'DATE', {
+    this.add.text(580, 150, 'LEVEL', {
       fontSize: '20px',
       fill: '#000',
       fontFamily: 'Arial',
@@ -676,24 +1381,25 @@ class LeaderboardScene extends Phaser.Scene {
         fontFamily: 'Arial'
       }).setOrigin(0.5);
 
+      // Player name
+      this.add.text(280, yPos, `${entry.username || 'Anonymous'}`, {
+        fontSize: '18px',
+        fill: '#000',
+        fontFamily: 'Arial',
+        fontStyle: 'bold'
+      }).setOrigin(0.5);
+
       // Simple score
-      this.add.text(300, yPos, `${entry.score}`, {
+      this.add.text(450, yPos, `${entry.score}`, {
         fontSize: '24px',
         fill: '#000',
         fontFamily: 'Arial'
       }).setOrigin(0.5);
 
       // Simple level
-      this.add.text(450, yPos, `${entry.level || 1}`, {
+      this.add.text(580, yPos, `${entry.level || 1}`, {
         fontSize: '24px',
         fill: '#000',
-        fontFamily: 'Arial'
-      }).setOrigin(0.5);
-
-      // Simple date
-      this.add.text(600, yPos, `${entry.date}`, {
-        fontSize: '18px',
-        fill: '#666',
         fontFamily: 'Arial'
       }).setOrigin(0.5);
 
@@ -1383,7 +2089,8 @@ class GameScene extends Phaser.Scene {
     const newEntry = {
       score: this.score,
       date: new Date().toLocaleDateString(),
-      level: this.level
+      level: this.level,
+      username: localStorage.getItem('username') || 'Anonymous'
     };
     
     leaderboard.push(newEntry);
@@ -1646,7 +2353,7 @@ const globalCloudManager = new CloudManager();
       debug: false 
     }
     },
-  scene: [MainMenuScene, LeaderboardScene, GameScene],
+      scene: [MainMenuScene, LeaderboardScene, SettingsScene, GameScene],
     scale: {
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,
