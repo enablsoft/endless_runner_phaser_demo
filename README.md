@@ -22,9 +22,12 @@ A fun endless runner game built with Phaser 3. Jump over obstacles, collect coin
 - **Endless Running**: Progressive difficulty with increasing speed
 - **Double Jump**: Perform a second jump while in the air
 - **Power-ups**: Revive ability for second chances
-- **Leaderboard**: Top 10 high scores with medals 🥇🥈🥉
+- **Leaderboard**: Top 10 high scores with player names and medals 🥇🥈🥉
+- **Username System**: Set your username to appear in the leaderboard
+- **Settings Menu**: Customize your game experience
+- **Ad System**: Optional ads every 3 game plays with statistics and test feature
 - **Animated Clouds**: Beautiful background animations
-- **Score Saving**: Your scores are saved automatically
+- **Score Persistence**: Your scores and settings are saved automatically
 - **Mobile Friendly**: Works on phones and tablets
 
 ## 🚀 Quick Start
@@ -41,11 +44,32 @@ python -m http.server 8000
 # Then visit: http://localhost:8000
 ```
 
+## ⚙️ Settings
+
+### Username
+- Set your username to appear in the leaderboard
+- Click the username field to edit
+- Username updates automatically in existing leaderboard entries
+
+### Ads
+- Enable/disable ads that appear every 3 game plays
+- Ads are optional and can be turned off anytime
+- No ads during gameplay - only when starting a new game
+- Ad count persists across sessions and menu navigation
+- **Test Ad Feature**: Preview ads in settings without playing games
+- **Ad Statistics**: Track total games played and ads viewed
+- **Ad Counter**: Shows when next ad will appear
+
+### Leaderboard Management
+- Clear all leaderboard scores and reset high score
+- Complete data reset option for fresh start
+
 ## 🛠️ Built With
 
 - **Phaser 3**: HTML5 game framework
 - **JavaScript**: Modern ES6+ features
-- **localStorage**: Score persistence
+- **localStorage**: Score and settings persistence
+- **Canvas UI**: Custom popup dialogs and input systems
 
 ## 🌐 Play Online
 
@@ -55,6 +79,25 @@ python -m http.server 8000
 ## 📱 Mobile Support
 
 Works great on mobile devices with touch controls and responsive design!
+
+## 🎯 Game Features
+
+### Scoring System
+- **Coins**: 10 points each
+- **Level Progression**: Speed increases with score
+- **High Score Tracking**: Persistent across sessions
+- **Leaderboard**: Top 10 scores with player names
+
+### Power-ups
+- **Revive**: Pink diamond coins grant extra life
+- **Double Jump**: Enhanced mobility
+- **Progressive Difficulty**: Game gets faster over time
+
+### UI Features
+- **Main Menu**: Clean, modern interface
+- **Settings Panel**: Username and ad preferences
+- **Leaderboard**: Sortable high scores
+- **Responsive Design**: Works on all screen sizes
 
 ---
 

@@ -1,106 +1,164 @@
 // ============================================================================
 // ENDLESS RUNNER GAME - Phaser 3 Implementation
 // ============================================================================
+// A complete endless runner game built with Phaser 3 featuring:
+// - Player movement with jumping mechanics
+// - Procedurally generated obstacles and coins
+// - Score system with persistent high scores
+// - Level progression with increasing difficulty
+// - Power-ups and revive system
+// - Ad integration with statistics tracking
+// - Multiple scenes: Main Menu, Game, Settings, Leaderboard, Statistics
+// - Animated backgrounds with cloud system
+// ============================================================================
 
-// Game Configuration Constants
+// ============================================================================
+// GAME CONFIGURATION CONSTANTS
+// ============================================================================
+// Centralized configuration for all game parameters
+// Makes it easy to adjust game balance and behavior
 const GAME_CONFIG = {
-  WIDTH: 800,
-  HEIGHT: 600,
-  BACKGROUND_COLOR: '#87ceeb',
-  GRAVITY: 800,
-  PLAYER_START_X: 100,
-  PLAYER_START_Y: 300,
-  GROUND_Y: 520,
-  OBSTACLE_SPAWN_X: 800,
-  OBSTACLE_Y: 490,
-  COIN_SPAWN_X: 800,
-  COIN_MIN_Y: 340,
-  COIN_MAX_Y: 400,
-  INITIAL_SPEED: 200,
-  INITIAL_SPAWN_DELAY: 1500,
-  SPEED_INCREMENT: 0.005,
-  LEVEL_SPEED_BONUS: 20,
-  SPAWN_DELAY_REDUCTION: 150,
-  MIN_SPAWN_DELAY: 500,
-  SCORE_PER_COIN: 10,
-  SCORE_PER_LEVEL: 100,
-  REVIVE_CHANCE: 20,
-  JUMP_VELOCITY: -420,
-  DOUBLE_JUMP_VELOCITY: -360,
-  PLAYER_BOUNCE: 0.1
+  // Display settings
+  WIDTH: 800,                    // Canvas width in pixels
+  HEIGHT: 600,                   // Canvas height in pixels
+  BACKGROUND_COLOR: '#87ceeb',   // Sky blue background color
+  
+  // Physics settings
+  GRAVITY: 800,                  // Gravity strength for player falling
+  PLAYER_BOUNCE: 0.1,            // Bounce factor when player hits ground
+  
+  // Player positioning
+  PLAYER_START_X: 100,           // Initial player X position
+  PLAYER_START_Y: 300,           // Initial player Y position
+  GROUND_Y: 520,                 // Y position of the ground surface
+  
+  // Obstacle and coin spawning
+  OBSTACLE_SPAWN_X: 800,         // X position where obstacles spawn (off-screen right)
+  OBSTACLE_Y: 490,               // Y position where obstacles are placed
+  COIN_SPAWN_X: 800,             // X position where coins spawn (off-screen right)
+  COIN_MIN_Y: 340,               // Minimum Y position for coin spawning
+  COIN_MAX_Y: 400,               // Maximum Y position for coin spawning
+  
+  // Game progression settings
+  INITIAL_SPEED: 200,            // Starting speed of obstacles and coins
+  INITIAL_SPAWN_DELAY: 1500,     // Initial delay between obstacle spawns (ms)
+  SPEED_INCREMENT: 0.005,        // How much speed increases per frame
+  LEVEL_SPEED_BONUS: 20,         // Speed bonus when leveling up
+  SPAWN_DELAY_REDUCTION: 150,    // How much spawn delay decreases per level
+  MIN_SPAWN_DELAY: 500,          // Minimum spawn delay (prevents impossible gameplay)
+  
+  // Scoring system
+  SCORE_PER_COIN: 10,            // Points awarded for collecting a coin
+  SCORE_PER_LEVEL: 100,          // Bonus points for reaching a new level
+  
+  // Power-up settings
+  REVIVE_CHANCE: 20,             // Percentage chance to get a revive coin
+  
+  // Player movement
+  JUMP_VELOCITY: -420,           // Initial jump velocity (negative = upward)
+  DOUBLE_JUMP_VELOCITY: -360     // Velocity for double jump (slightly weaker)
 };
 
-// UI Configuration Constants
+// ============================================================================
+// UI CONFIGURATION CONSTANTS
+// ============================================================================
+// Defines styling and layout for all user interface elements
+// Ensures consistent appearance across all scenes
 const UI_CONFIG = {
+  // Standard button styling for most UI buttons
   BUTTON_STYLE: {
-    fontSize: '22px',
-    fill: '#fff',
-    backgroundColor: '#444',
-    padding: { x: 25, y: 12 },
-    align: 'center',
-    fontFamily: 'Arial',
-    stroke: '#000',
-    strokeThickness: 2,
-    shadow: {
-      offsetX: 2,
-      offsetY: 2,
-      color: '#000',
-      blur: 3,
-      stroke: true,
-      fill: true
+    fontSize: '22px',             // Button text size
+    fill: '#fff',                 // Text color (white)
+    backgroundColor: '#444',      // Button background (dark gray)
+    padding: { x: 25, y: 12 },    // Internal padding for button size
+    align: 'center',              // Text alignment
+    fontFamily: 'Arial',          // Font family
+    stroke: '#000',               // Text outline color (black)
+    strokeThickness: 2,           // Text outline thickness
+    shadow: {                     // Drop shadow for depth
+      offsetX: 2,                 // Shadow X offset
+      offsetY: 2,                 // Shadow Y offset
+      color: '#000',              // Shadow color (black)
+      blur: 3,                    // Shadow blur radius
+      stroke: true,               // Apply shadow to text outline
+      fill: true                  // Apply shadow to text fill
     }
   },
+  
+  // Larger button styling for main menu buttons
   MENU_BUTTON_STYLE: {
-    fontSize: '26px',
-    fill: '#fff',
-    backgroundColor: '#444',
-    padding: { x: 25, y: 12 },
-    align: 'center',
-    fontFamily: 'Arial',
-    stroke: '#000',
-    strokeThickness: 2,
-    shadow: {
-      offsetX: 2,
-      offsetY: 2,
-      color: '#000',
-      blur: 3,
-      stroke: true,
-      fill: true
+    fontSize: '26px',             // Larger text for menu buttons
+    fill: '#fff',                 // Text color (white)
+    backgroundColor: '#444',      // Button background (dark gray)
+    padding: { x: 25, y: 12 },    // Internal padding
+    align: 'center',              // Text alignment
+    fontFamily: 'Arial',          // Font family
+    stroke: '#000',               // Text outline color (black)
+    strokeThickness: 2,           // Text outline thickness
+    shadow: {                     // Drop shadow for depth
+      offsetX: 2,                 // Shadow X offset
+      offsetY: 2,                 // Shadow Y offset
+      color: '#000',              // Shadow color (black)
+      blur: 3,                    // Shadow blur radius
+      stroke: true,               // Apply shadow to text outline
+      fill: true                  // Apply shadow to text fill
     }
   },
-  BUTTON_WIDTH: 110,
-  BUTTON_GAP: 35,
-  UI_PANEL_HEIGHT: 70
+  
+  // Layout constants
+  BUTTON_WIDTH: 110,              // Standard button width in pixels
+  BUTTON_GAP: 35,                 // Gap between buttons in pixels
+  UI_PANEL_HEIGHT: 70             // Height of UI panels in pixels
 };
 
 // ============================================================================
 // MAIN MENU SCENE
 // ============================================================================
+// The main entry point of the game
+// Displays the title, high score, navigation buttons, and game instructions
+// Features animated title, persistent high score display, and cloud background
+// ============================================================================
 
 class MainMenuScene extends Phaser.Scene {
+  /**
+   * Constructor for the main menu scene
+   * Sets up the scene name for navigation
+   */
   constructor() {
     super('MainMenuScene');
   }
 
+  /**
+   * Main create method called when the scene starts
+   * Initializes all visual elements in the correct order
+   */
   create() {
-    this.createBackground();
-    globalCloudManager.start(this);
-    this.createTitle();
-    this.createHighScoreDisplay();
-    this.createButtons();
-    this.createInstructions();
+    this.createBackground();        // Create the sky blue background
+    globalCloudManager.start(this); // Start animated cloud system
+    this.createTitle();             // Create animated title and subtitle
+    this.createHighScoreDisplay();  // Show persistent high score
+    this.createButtons();           // Create navigation buttons
+    this.createInstructions();      // Add game instructions
   }
 
+  /**
+   * Creates the sky blue background for the main menu
+   * Uses a simple rectangle that covers the entire canvas
+   */
   createBackground() {
     this.add.rectangle(
-      GAME_CONFIG.WIDTH / 2, 
-      GAME_CONFIG.HEIGHT / 2, 
-      GAME_CONFIG.WIDTH, 
-      GAME_CONFIG.HEIGHT, 
-      0x87ceeb
+      GAME_CONFIG.WIDTH / 2,    // Center X position
+      GAME_CONFIG.HEIGHT / 2,   // Center Y position
+      GAME_CONFIG.WIDTH,        // Full width
+      GAME_CONFIG.HEIGHT,       // Full height
+      0x87ceeb                  // Sky blue color (hex)
     );
   }
 
+  /**
+   * Creates the animated title and subtitle
+   * Features modern styling with shadows and entrance animations
+   */
   createTitle() {
     // Main title with modern styling and shadow
     const titleText = this.add.text(GAME_CONFIG.WIDTH / 2, 80, 'ENDLESS RUNNER', {
@@ -684,7 +742,7 @@ class SettingsScene extends Phaser.Scene {
     // Username input background - positioned to the left
     const usernameBg = this.add.rectangle(
       GAME_CONFIG.WIDTH / 2 - 100, 
-      190, 
+      200, 
       200, 
       40, 
       0xffffff, 
@@ -692,7 +750,7 @@ class SettingsScene extends Phaser.Scene {
     ).setStrokeStyle(2, 0x000000, 0.3);
 
     // Username text display with input functionality
-    this.usernameText = this.add.text(GAME_CONFIG.WIDTH / 2 - 100, 190, currentUsername || 'Click to enter name...', {
+    this.usernameText = this.add.text(GAME_CONFIG.WIDTH / 2 - 100, 200, currentUsername || 'Click to enter name...', {
       fontSize: '16px',
       fill: currentUsername ? '#000' : '#666',
       fontFamily: 'Arial',
@@ -706,7 +764,7 @@ class SettingsScene extends Phaser.Scene {
     });
 
     // Change username button - positioned to the right
-    const changeUsernameButton = this.add.text(GAME_CONFIG.WIDTH / 2 + 100, 190, '✏️ CHANGE', {
+    const changeUsernameButton = this.add.text(GAME_CONFIG.WIDTH / 2 + 100, 200, '✏️ CHANGE', {
       fontSize: '18px',
       fill: '#ffffff',
       fontFamily: 'Arial',
@@ -724,7 +782,7 @@ class SettingsScene extends Phaser.Scene {
     });
 
     // Ads section
-    this.add.text(GAME_CONFIG.WIDTH / 2, 280, '📺 ADS SETTINGS', {
+    this.add.text(GAME_CONFIG.WIDTH / 2, 260, '📺 ADS SETTINGS', {
       fontSize: '24px',
       fill: '#000',
       fontFamily: 'Arial',
@@ -734,7 +792,7 @@ class SettingsScene extends Phaser.Scene {
     // Calculate button positions for side-by-side layout like main menu
     const buttonWidth = 160;
     const gap = 40;
-    const totalWidth = buttonWidth * 2 + gap;
+    const totalWidth = buttonWidth * 3 + gap * 2; // Now 3 buttons
     const startX = (GAME_CONFIG.WIDTH - totalWidth) / 2 + buttonWidth / 2;
 
     // Enable ads button - left side
@@ -763,6 +821,19 @@ class SettingsScene extends Phaser.Scene {
       borderRadius: 8
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
+    // Statistics button - third position
+    const statsButton = this.add.text(startX + (buttonWidth + gap) * 2, 320, '📊 STATISTICS', {
+      fontSize: '18px',
+      fill: '#ffffff',
+      fontFamily: 'Arial',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 2,
+      backgroundColor: '#4CAF50',
+      padding: { x: 15, y: 8 },
+      borderRadius: 8
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
     // Enable ads button interaction
     enableAdsButton.on('pointerdown', () => {
       localStorage.setItem('showAds', 'true');
@@ -777,8 +848,13 @@ class SettingsScene extends Phaser.Scene {
       enableAdsButton.setStyle({ backgroundColor: '#666' });
     });
 
+    // Statistics button interaction
+    statsButton.on('pointerdown', () => {
+      this.scene.start('StatisticsScene');
+    });
+
     // Clear leaderboard section
-    this.add.text(GAME_CONFIG.WIDTH / 2, 400, '🗑️ CLEAR LEADERBOARD', {
+    this.add.text(GAME_CONFIG.WIDTH / 2, 380, '🗑️ CLEAR LEADERBOARD', {
       fontSize: '24px',
       fill: '#000',
       fontFamily: 'Arial',
@@ -798,13 +874,31 @@ class SettingsScene extends Phaser.Scene {
       borderRadius: 8
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
+    // Test ad button - positioned at top right
+    const testAdButton = this.add.text(GAME_CONFIG.WIDTH - 20, 20, '📺 TEST AD', {
+      fontSize: '16px',
+      fill: '#ffffff',
+      fontFamily: 'Arial',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 2,
+      backgroundColor: '#2196F3',
+      padding: { x: 15, y: 8 },
+      borderRadius: 6
+    }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
+
+    // Test ad button interaction
+    testAdButton.on('pointerdown', () => {
+      this.showTestAdPopup();
+    });
+
     // Clear leaderboard button interaction
     clearLeaderboardButton.on('pointerdown', () => {
       this.showClearConfirmation(clearLeaderboardButton);
     });
 
-    // Add entrance animations
-    [usernameBg, this.usernameText, changeUsernameButton, enableAdsButton, disableAdsButton, clearLeaderboardButton].forEach((element, index) => {
+    // Add entrance animations for main elements
+    [usernameBg, this.usernameText, changeUsernameButton, enableAdsButton, disableAdsButton, statsButton, clearLeaderboardButton].forEach((element, index) => {
       element.setAlpha(0);
       element.setY(element.y + 50);
       
@@ -816,6 +910,19 @@ class SettingsScene extends Phaser.Scene {
         delay: 500 + (index * 150),
         ease: 'Back.easeOut'
       });
+    });
+
+    // Special animation for test ad button (top right)
+    testAdButton.setAlpha(0);
+    testAdButton.setX(testAdButton.x + 50);
+    
+    this.tweens.add({
+      targets: testAdButton,
+      alpha: 1,
+      x: testAdButton.x - 50,
+      duration: 800,
+      delay: 800,
+      ease: 'Back.easeOut'
     });
   }
 
@@ -1232,6 +1339,479 @@ class SettingsScene extends Phaser.Scene {
       });
     });
   }
+
+  showTestAdPopup() {
+    // Increment ad view count for test
+    const currentAdCount = parseInt(localStorage.getItem('adViewCount')) || 0;
+    localStorage.setItem('adViewCount', currentAdCount + 1);
+    
+    // Create ad popup background with better positioning
+    const popupBg = this.add.rectangle(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2,
+      GAME_CONFIG.WIDTH * 0.85,
+      GAME_CONFIG.HEIGHT * 0.7,
+      0x000000,
+      0.95
+    ).setDepth(20);
+    popupBg.setStrokeStyle(3, 0xffffff, 1);
+    
+    // Ad title - positioned higher for better visibility
+    const adTitle = this.add.text(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2 - 140,
+      '🎮 GAME SPONSORED BY',
+      {
+        fontSize: '28px',
+        fill: '#ffffff',
+        fontFamily: 'Arial',
+        fontStyle: 'bold',
+        align: 'center',
+        stroke: '#000000',
+        strokeThickness: 3
+      }
+    ).setOrigin(0.5).setDepth(21);
+    
+    // Ad content - better spacing and visibility
+    const adContent = this.add.text(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2 - 50,
+      '🏆 PREMIUM GAMING GEAR\n🎯 ENHANCE YOUR GAMING EXPERIENCE\n⚡ BOOST YOUR PERFORMANCE',
+      {
+        fontSize: '20px',
+        fill: '#ffff00',
+        fontFamily: 'Arial',
+        fontStyle: 'bold',
+        align: 'center',
+        lineSpacing: 8,
+        stroke: '#000000',
+        strokeThickness: 2
+      }
+    ).setOrigin(0.5).setDepth(21);
+    
+    // Ad description - better positioned
+    const adDescription = this.add.text(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2 + 40,
+      'Get the latest gaming accessories\nand level up your gameplay!',
+      {
+        fontSize: '18px',
+        fill: '#cccccc',
+        fontFamily: 'Arial',
+        align: 'center',
+        lineSpacing: 10,
+        stroke: '#000000',
+        strokeThickness: 1
+      }
+    ).setOrigin(0.5).setDepth(21);
+    
+    // Close button - better positioned and styled
+    const closeBtn = this.add.text(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2 + 120,
+      '❌ CLOSE AD',
+      {
+        fontSize: '22px',
+        fill: '#ffffff',
+        backgroundColor: '#f44336',
+        padding: { x: 25, y: 12 },
+        fontFamily: 'Arial',
+        fontStyle: 'bold',
+        stroke: '#000000',
+        strokeThickness: 2
+      }
+    ).setOrigin(0.5).setInteractive().setDepth(21);
+    
+    // Button interactions
+    closeBtn.on('pointerover', () => {
+      closeBtn.setStyle({ fill: '#ffff00', backgroundColor: '#666666' });
+    });
+    closeBtn.on('pointerout', () => {
+      closeBtn.setStyle({ fill: '#ffffff', backgroundColor: '#444444' });
+    });
+    closeBtn.on('pointerdown', () => {
+      // Remove ad popup elements
+      popupBg.destroy();
+      adTitle.destroy();
+      adContent.destroy();
+      adDescription.destroy();
+      closeBtn.destroy();
+      
+      // Refresh the settings scene to update statistics
+      this.scene.restart();
+    });
+    
+    // Auto-close after 5 seconds
+    this.time.delayedCall(5000, () => {
+      if (popupBg.active) {
+        popupBg.destroy();
+        adTitle.destroy();
+        adContent.destroy();
+        adDescription.destroy();
+        closeBtn.destroy();
+        this.scene.restart();
+      }
+    });
+  }
+}
+
+// ============================================================================
+// STATISTICS SCENE
+// ============================================================================
+// Displays comprehensive game statistics in a table format
+// Shows user information, gameplay stats, and ad statistics
+// Features animated table rows and professional styling
+// ============================================================================
+
+class StatisticsScene extends Phaser.Scene {
+  /**
+   * Constructor for the statistics scene
+   * Sets up the scene name for navigation
+   */
+  constructor() {
+    super('StatisticsScene');
+  }
+
+  /**
+   * Main create method called when the scene starts
+   * Initializes all visual elements in the correct order
+   */
+  create() {
+    this.createBackground();        // Create the sky blue background
+    globalCloudManager.start(this); // Start animated cloud system
+    this.createTitle();             // Create animated title and subtitle
+    this.createStatistics();        // Create the statistics table
+    this.createBackButton();        // Create navigation back button
+  }
+
+  createBackground() {
+    this.add.rectangle(
+      GAME_CONFIG.WIDTH / 2, 
+      GAME_CONFIG.HEIGHT / 2, 
+      GAME_CONFIG.WIDTH, 
+      GAME_CONFIG.HEIGHT, 
+      0x87ceeb
+    );
+  }
+
+  createTitle() {
+    // Main title with modern styling
+    const titleText = this.add.text(GAME_CONFIG.WIDTH / 2, 80, '📊 GAME STATISTICS', {
+      fontSize: '40px',
+      fill: '#ffffff',
+      fontFamily: 'Arial',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 4,
+      shadow: {
+        offsetX: 2,
+        offsetY: 2,
+        color: '#000000',
+        blur: 4,
+        fill: true
+      }
+    }).setOrigin(0.5);
+
+    // Subtitle with modern styling
+    const subtitleText = this.add.text(GAME_CONFIG.WIDTH / 2, 130, '📈 Your Gaming Journey 📈', {
+      fontSize: '18px',
+      fill: '#ffd700',
+      fontFamily: 'Arial',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 2,
+      shadow: {
+        offsetX: 1,
+        offsetY: 1,
+        color: '#000000',
+        blur: 2,
+        fill: true
+      }
+    }).setOrigin(0.5);
+    
+    // Add entrance animations
+    titleText.setAlpha(0);
+    subtitleText.setAlpha(0);
+    titleText.setY(50);
+    subtitleText.setY(100);
+    
+    this.tweens.add({
+      targets: titleText,
+      alpha: 1,
+      y: 80,
+      duration: 1000,
+      ease: 'Back.easeOut'
+    });
+    
+    this.tweens.add({
+      targets: subtitleText,
+      alpha: 1,
+      y: 130,
+      duration: 1000,
+      delay: 200,
+      ease: 'Back.easeOut'
+    });
+  }
+
+  createStatistics() {
+    // Get statistics from localStorage
+    const gamePlayCount = parseInt(localStorage.getItem('gamePlayCount')) || 0;
+    const adViewCount = parseInt(localStorage.getItem('adViewCount')) || 0;
+    const highScore = parseInt(localStorage.getItem('highScore')) || 0;
+    const adsEnabled = localStorage.getItem('showAds') === 'true';
+    const username = localStorage.getItem('username') || 'Anonymous';
+    
+    // Calculate additional statistics
+    const nextAdGames = adsEnabled ? (3 - (gamePlayCount % 3)) : 0;
+    const adFrequency = gamePlayCount > 0 ? ((adViewCount / gamePlayCount) * 100).toFixed(1) : 0;
+    
+    // Table layout variables - defined first
+    const tableStartY = 200;
+    const tableWidth = 700; // Fixed width to ensure it fits
+    const tableStartX = (GAME_CONFIG.WIDTH - tableWidth) / 2;
+    const labelX = tableStartX + 80; // More padding from left edge
+    const valueX = tableStartX + tableWidth - 160; // More padding from right edge
+    const rowHeight = 40; // Slightly smaller row height to fit all stats
+
+    // Statistics data
+    const statsData = [
+      { label: '👤 Username', value: username, color: '#2196F3' },
+      { label: '🎮 Games Played', value: gamePlayCount.toString(), color: '#4CAF50' },
+      { label: '🏆 High Score', value: highScore.toString(), color: '#FF9800' },
+      { label: '📺 Ads Viewed', value: adViewCount.toString(), color: '#9C27B0' },
+      { label: '⏰ Next Ad In', value: adsEnabled ? `${nextAdGames} games` : 'Disabled', color: adsEnabled ? '#E91E63' : '#666666' }
+    ];
+    
+    // Calculate table height with bottom padding
+    const tableHeight = (statsData.length * rowHeight) + 40; // Add 40px bottom padding
+
+    // Create table background panel
+    const tableBg = this.add.rectangle(
+      tableStartX + tableWidth / 2,
+      tableStartY + tableHeight / 2,
+      tableWidth,
+      tableHeight,
+      0xffffff,
+      0.95
+    ).setDepth(5);
+    tableBg.setStrokeStyle(4, 0x000000, 0.5);
+
+    // Table header - positioned to match table
+    const headerBg = this.add.rectangle(
+      tableStartX + tableWidth / 2,
+      180,
+      tableWidth,
+      40,
+      0x2196F3,
+      0.8
+    ).setDepth(6);
+    headerBg.setStrokeStyle(2, 0x000000, 0.5);
+
+    const headerText = this.add.text(tableStartX + tableWidth / 2, 180, '📊 GAME STATISTICS', {
+      fontSize: '24px',
+      fill: '#ffffff',
+      fontFamily: 'Arial',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 3,
+      shadow: {
+        offsetX: 1,
+        offsetY: 1,
+        color: '#000000',
+        blur: 2,
+        fill: true
+      }
+    }).setOrigin(0.5).setDepth(7);
+
+    // Create table rows with alternating background colors
+    statsData.forEach((stat, index) => {
+      const yPos = tableStartY + (index * rowHeight);
+      
+      // Row background (alternating colors) - positioned to match table
+      const rowBg = this.add.rectangle(
+        tableStartX + tableWidth / 2,
+        yPos + rowHeight / 2,
+        tableWidth - 20, // Slightly smaller to show table boundaries
+        rowHeight - 5,
+        index % 2 === 0 ? 0xf5f5f5 : 0xffffff,
+        0.7
+      ).setDepth(6);
+      rowBg.setStrokeStyle(1, 0xcccccc, 0.5);
+
+      // Label column
+      const labelText = this.add.text(labelX, yPos + rowHeight / 2, stat.label, {
+        fontSize: '20px',
+        fill: '#000000',
+        fontFamily: 'Arial',
+        fontStyle: 'bold',
+        stroke: '#ffffff',
+        strokeThickness: 2,
+        shadow: {
+          offsetX: 1,
+          offsetY: 1,
+          color: '#000000',
+          blur: 1,
+          fill: true
+        }
+      }).setOrigin(0, 0.5).setDepth(7);
+
+      // Value column - positioned at fixed right position
+      const valueText = this.add.text(valueX, yPos + rowHeight / 2, stat.value, {
+        fontSize: '22px',
+        fill: stat.color,
+        fontFamily: 'Arial',
+        fontStyle: 'bold',
+        stroke: '#000000',
+        strokeThickness: 2,
+        shadow: {
+          offsetX: 1,
+          offsetY: 1,
+          color: '#000000',
+          blur: 1,
+          fill: true
+        }
+      }).setOrigin(0, 0.5).setDepth(7);
+
+      // Add entrance animations for each row
+      rowBg.setAlpha(0);
+      labelText.setAlpha(0);
+      valueText.setAlpha(0);
+      rowBg.setY(rowBg.y - 20);
+      labelText.setX(labelText.x - 30);
+      valueText.setX(valueText.x + 30); // Move value text to the right initially
+      
+      this.tweens.add({
+        targets: [rowBg],
+        alpha: 1,
+        y: rowBg.y + 20,
+        duration: 600,
+        delay: 1000 + (index * 200),
+        ease: 'Back.easeOut'
+      });
+      
+      this.tweens.add({
+        targets: [labelText],
+        alpha: 1,
+        x: labelText.x + 30,
+        duration: 600,
+        delay: 1000 + (index * 200),
+        ease: 'Back.easeOut'
+      });
+      
+      this.tweens.add({
+        targets: [valueText],
+        alpha: 1,
+        x: valueText.x - 30, // Move value text back to its final position
+        duration: 600,
+        delay: 1000 + (index * 200),
+        ease: 'Back.easeOut'
+      });
+    });
+
+    // Add entrance animation for header
+    headerBg.setAlpha(0);
+    headerText.setAlpha(0);
+    headerBg.setY(headerBg.y - 30);
+    headerText.setY(headerText.y - 30);
+    
+    this.tweens.add({
+      targets: [headerBg, headerText],
+      alpha: 1,
+      y: headerBg.y + 30,
+      duration: 800,
+      delay: 800,
+      ease: 'Back.easeOut'
+    });
+  }
+
+  createBackButton() {
+    const buttonStyle = {
+      fontSize: '28px',
+      fill: '#ffffff',
+      fontFamily: 'Arial',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 2,
+      backgroundColor: '#4CAF50',
+      padding: { x: 30, y: 15 },
+      borderRadius: 10,
+      shadow: {
+        offsetX: 2,
+        offsetY: 2,
+        color: '#000000',
+        blur: 4,
+        fill: true
+      }
+    };
+    
+    const buttonHoverStyle = {
+      ...buttonStyle,
+      backgroundColor: '#45a049',
+      fill: '#ffff00'
+    };
+    
+    const backButton = this.add.text(GAME_CONFIG.WIDTH / 2, 520, '← BACK TO SETTINGS', buttonStyle)
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true })
+      .setDepth(10);
+
+    // Enhanced button interaction events with smooth animations
+    backButton.on('pointerover', () => {
+      this.tweens.add({
+        targets: backButton,
+        scaleX: 1.05,
+        scaleY: 1.05,
+        duration: 150,
+        ease: 'Power2'
+      });
+      backButton.setStyle(buttonHoverStyle);
+    });
+    
+    backButton.on('pointerout', () => {
+      this.tweens.add({
+        targets: backButton,
+        scaleX: 1,
+        scaleY: 1,
+        duration: 150,
+        ease: 'Power2'
+      });
+      backButton.setStyle(buttonStyle);
+    });
+    
+    backButton.on('pointerdown', () => {
+      this.tweens.add({
+        targets: backButton,
+        scaleX: 0.95,
+        scaleY: 0.95,
+        duration: 100,
+        ease: 'Power2'
+      });
+      this.scene.start('SettingsScene');
+    });
+    
+    backButton.on('pointerup', () => {
+      this.tweens.add({
+        targets: backButton,
+        scaleX: 1.05,
+        scaleY: 1.05,
+        duration: 100,
+        ease: 'Power2'
+      });
+    });
+
+    // Add entrance animation
+    backButton.setAlpha(0);
+    backButton.setY(backButton.y + 30);
+    
+    this.tweens.add({
+      targets: backButton,
+      alpha: 1,
+      y: backButton.y - 30,
+      duration: 800,
+      delay: 1200,
+      ease: 'Back.easeOut'
+    });
+  }
 }
 
 // ============================================================================
@@ -1547,28 +2127,45 @@ class LeaderboardScene extends Phaser.Scene {
 }
 
 // ============================================================================
+// ============================================================================
 // MAIN GAME SCENE
+// ============================================================================
+// The core gameplay scene where the endless runner game takes place
+// Handles player movement, obstacle spawning, scoring, and game progression
+// Features physics, collision detection, power-ups, and ad integration
 // ============================================================================
 
 class GameScene extends Phaser.Scene {
+    /**
+     * Constructor for the game scene
+     * Sets up the scene name for navigation
+     */
     constructor() {
       super('GameScene');
     }
   
+    /**
+     * Preload method called before create
+     * No external assets needed - all textures are generated programmatically
+     */
     preload() {
-    // Using generated textures, no external assets to preload
+      // Using generated textures, no external assets to preload
     }
   
+    /**
+     * Main create method called when the scene starts
+     * Initializes all game systems in the correct order
+     */
     create() {
-    this.initializeGameState();
-      this.createTextures();
-    this.createGameObjects();
-    this.setupPhysics();
-    this.setupUI();
-    this.setupInputHandlers();
-    this.setupSpawnTimer();
-    this.createBottomUI();
-  }
+      this.initializeGameState();  // Set up game variables and state
+      this.createTextures();       // Generate all game textures
+      this.createGameObjects();    // Create player, ground, and object groups
+      this.setupPhysics();         // Configure physics and collision detection
+      this.setupUI();              // Create score, level, and button displays
+      this.setupInputHandlers();   // Set up keyboard and touch controls
+      this.setupSpawnTimer();      // Start obstacle and coin spawning system
+      this.createBottomUI();       // Create bottom UI panel with buttons
+    }
 
   initializeGameState() {
     // Game state variables
@@ -1589,6 +2186,10 @@ class GameScene extends Phaser.Scene {
       revive: false
     };
     this.powerUpTimer = null;
+    
+    // Ad system - track game play count and ad views
+    this.gamePlayCount = parseInt(localStorage.getItem('gamePlayCount')) || 0;
+    this.adViewCount = parseInt(localStorage.getItem('adViewCount')) || 0;
   }
 
   createGameObjects() {
@@ -1796,25 +2397,40 @@ class GameScene extends Phaser.Scene {
     if (this.player.body.touching.down) this.canDoubleJump = true;
     }
   
-    startGame() {
-      this.gameStarted = true;
+      startGame() {
+    this.gameStarted = true;
     this.score = 0;
     localStorage.setItem('currentScore', 0);
     this.scoreText.setText('Score: 0');
     
-    this.updateButtonVisibility();
-      this.gameOverText.setAlpha(0);
-      this.physics.resume();
-      this.spawnTimer.paused = false;
-      this.pauseText.setText('');
-      this.powerUpText.setText('Power Up: None');
-      this.powerUps.revive = false;
+    // Increment game play count and check for ad
+    this.gamePlayCount++;
+    localStorage.setItem('gamePlayCount', this.gamePlayCount);
     
-    if (this.powerUpTimer) {
-        this.powerUpTimer.remove();
-        this.powerUpTimer = null;
-      }
+    // Check if ads are enabled and if it's time to show an ad (every 3 game plays)
+    const adsEnabled = localStorage.getItem('showAds') === 'true';
+    if (adsEnabled && this.gamePlayCount % 3 === 0) {
+      this.showAdPopup();
+      return; // Don't start yet, wait for ad to close
     }
+    
+    this.performStartGame();
+  }
+  
+  performStartGame() {
+    this.updateButtonVisibility();
+    this.gameOverText.setAlpha(0);
+    this.physics.resume();
+    this.spawnTimer.paused = false;
+    this.pauseText.setText('');
+    this.powerUpText.setText('Power Up: None');
+    this.powerUps.revive = false;
+  
+    if (this.powerUpTimer) {
+      this.powerUpTimer.remove();
+      this.powerUpTimer = null;
+    }
+  }
   
     jump() {
       if (this.player.body.touching.down) {
@@ -2007,6 +2623,21 @@ class GameScene extends Phaser.Scene {
     }
   
       restartGame() {
+    // Increment game play count and check for ad
+    this.gamePlayCount++;
+    localStorage.setItem('gamePlayCount', this.gamePlayCount);
+    
+    // Check if ads are enabled and if it's time to show an ad (every 3 game plays)
+    const adsEnabled = localStorage.getItem('showAds') === 'true';
+    if (adsEnabled && this.gamePlayCount % 3 === 0) {
+      this.showAdPopup();
+      return; // Don't restart yet, wait for ad to close
+    }
+    
+    this.performRestart();
+  }
+  
+  performRestart() {
     this.gameOver = false;
     this.score = 0;
     localStorage.setItem('currentScore', 0);
@@ -2043,6 +2674,117 @@ class GameScene extends Phaser.Scene {
     this.physics.resume();
     this.spawnTimer.paused = false;
     this.spawnTimer.delay = this.spawnDelay;
+  }
+  
+  showAdPopup() {
+    // Increment ad view count
+    this.adViewCount++;
+    localStorage.setItem('adViewCount', this.adViewCount);
+    
+    // Create ad popup background
+    const popupBg = this.add.rectangle(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2,
+      GAME_CONFIG.WIDTH * 0.8,
+      GAME_CONFIG.HEIGHT * 0.6,
+      0x000000,
+      0.9
+    ).setDepth(20);
+    popupBg.setStrokeStyle(3, 0xffffff, 1);
+    
+    // Ad title
+    const adTitle = this.add.text(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2 - 120,
+      '🎮 GAME SPONSORED BY',
+      {
+        fontSize: '24px',
+        fill: '#ffffff',
+        fontFamily: 'Arial',
+        align: 'center'
+      }
+    ).setOrigin(0.5).setDepth(21);
+    
+    // Ad content
+    const adContent = this.add.text(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2 - 40,
+      '🏆 PREMIUM GAMING GEAR\n🎯 ENHANCE YOUR GAMING EXPERIENCE\n⚡ BOOST YOUR PERFORMANCE',
+      {
+        fontSize: '18px',
+        fill: '#ffff00',
+        fontFamily: 'Arial',
+        align: 'center',
+        lineSpacing: 6
+      }
+    ).setOrigin(0.5).setDepth(21);
+    
+    // Ad description
+    const adDescription = this.add.text(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2 + 40,
+      'Get the latest gaming accessories\nand level up your gameplay!',
+      {
+        fontSize: '16px',
+        fill: '#cccccc',
+        fontFamily: 'Arial',
+        align: 'center',
+        lineSpacing: 8
+      }
+    ).setOrigin(0.5).setDepth(21);
+    
+    // Continue button
+    const continueBtn = this.add.text(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2 + 100,
+      '▶️ CONTINUE GAME',
+      {
+        fontSize: '20px',
+        fill: '#ffffff',
+        backgroundColor: '#444444',
+        padding: { x: 20, y: 10 },
+        fontFamily: 'Arial'
+      }
+    ).setOrigin(0.5).setInteractive().setDepth(21);
+    
+    // Button interactions
+    continueBtn.on('pointerover', () => {
+      continueBtn.setStyle({ fill: '#ffff00', backgroundColor: '#666666' });
+    });
+    continueBtn.on('pointerout', () => {
+      continueBtn.setStyle({ fill: '#ffffff', backgroundColor: '#444444' });
+    });
+    continueBtn.on('pointerdown', () => {
+      // Remove ad popup elements
+      popupBg.destroy();
+      adTitle.destroy();
+      adContent.destroy();
+      adDescription.destroy();
+      continueBtn.destroy();
+      
+      // Now perform the actual game start or restart
+      if (this.gameStarted) {
+        this.performRestart();
+      } else {
+        this.performStartGame();
+      }
+    });
+    
+    // Auto-close after 5 seconds
+    this.time.delayedCall(5000, () => {
+      if (popupBg.active) {
+        popupBg.destroy();
+        adTitle.destroy();
+        adContent.destroy();
+        adDescription.destroy();
+        continueBtn.destroy();
+        if (this.gameStarted) {
+          this.performRestart();
+        } else {
+          this.performStartGame();
+        }
+      }
+    });
   }
   
     collectCoin(player, coin) {
@@ -2199,11 +2941,19 @@ class GameScene extends Phaser.Scene {
 // ============================================================================
 // GLOBAL CLOUD MANAGER
 // ============================================================================
+// Manages animated cloud backgrounds across all scenes
+// Creates parallax scrolling clouds for visual appeal
+// Handles cloud spawning, movement, and cleanup
+// ============================================================================
 
 class CloudManager {
+  /**
+   * Constructor for the cloud manager
+   * Initializes cloud tracking and active state
+   */
   constructor() {
-    this.clouds = [];
-    this.isActive = false;
+    this.clouds = [];        // Array to store all active cloud sprites and tweens
+    this.isActive = false;   // Flag to track if cloud system is running
   }
 
   start(scene) {
@@ -2334,32 +3084,47 @@ class CloudManager {
   }
 }
 
-// Global cloud manager instance
+// Global cloud manager instance - shared across all scenes
 const globalCloudManager = new CloudManager();
 
 // ============================================================================
 // GAME CONFIGURATION AND INITIALIZATION
 // ============================================================================
+// Phaser game configuration object
+// Defines renderer, physics, scenes, and scaling behavior
+// ============================================================================
   
-  const config = {
-    type: Phaser.AUTO,
-  width: GAME_CONFIG.WIDTH,
-  height: GAME_CONFIG.HEIGHT,
-  backgroundColor: GAME_CONFIG.BACKGROUND_COLOR,
-    physics: {
-      default: 'arcade',
+const config = {
+  type: Phaser.AUTO,                    // Auto-detect best renderer (WebGL or Canvas)
+  width: GAME_CONFIG.WIDTH,             // Game width from configuration
+  height: GAME_CONFIG.HEIGHT,           // Game height from configuration
+  backgroundColor: GAME_CONFIG.BACKGROUND_COLOR,  // Background color from configuration
+  
+  // Physics system configuration
+  physics: {
+    default: 'arcade',                  // Use Arcade Physics (lightweight 2D physics)
     arcade: { 
-      gravity: { y: GAME_CONFIG.GRAVITY }, 
-      debug: false 
+      gravity: { y: GAME_CONFIG.GRAVITY },  // Apply gravity from configuration
+      debug: false                       // Disable physics debug visualization
     }
-    },
-      scene: [MainMenuScene, LeaderboardScene, SettingsScene, GameScene],
-    scale: {
-      mode: Phaser.Scale.FIT,
-      autoCenter: Phaser.Scale.CENTER_BOTH,
-    }
-  };
+  },
   
-// Initialize the game
-  new Phaser.Game(config);
+  // Scene management - order determines loading sequence
+  scene: [
+    MainMenuScene,      // First scene (main menu)
+    LeaderboardScene,   // Leaderboard display
+    SettingsScene,      // Game settings and configuration
+    StatisticsScene,    // Statistics and analytics
+    GameScene           // Main gameplay scene
+  ],
+  
+  // Scaling and display configuration
+  scale: {
+    mode: Phaser.Scale.FIT,             // Scale to fit screen while maintaining aspect ratio
+    autoCenter: Phaser.Scale.CENTER_BOTH, // Center the game on screen
+  }
+};
+  
+// Initialize the Phaser game with the configuration
+new Phaser.Game(config);
   
