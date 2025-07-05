@@ -34,7 +34,9 @@ class CloudManager {
     stop() {
       this.isActive = false;
       this.clouds.forEach(cloud => {
-        if (cloud.tween) cloud.tween.stop();
+        if (cloud.tween && cloud.tween.isActive()) {
+          cloud.tween.stop();
+        }
         if (cloud.sprite) cloud.sprite.destroy();
       });
       this.clouds = [];
@@ -145,14 +147,18 @@ class CloudManager {
   
     pause() {
       this.clouds.forEach(cloud => {
-        if (cloud.tween) cloud.tween.pause();
+        if (cloud.tween && cloud.tween.isActive()) {
+          cloud.tween.pause();
+        }
       });
       if (this.spawnTimer) this.spawnTimer.paused = true;
     }
   
     resume() {
       this.clouds.forEach(cloud => {
-        if (cloud.tween) cloud.tween.resume();
+        if (cloud.tween && cloud.tween.isActive()) {
+          cloud.tween.resume();
+        }
       });
       if (this.spawnTimer) this.spawnTimer.paused = false;
     }

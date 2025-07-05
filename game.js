@@ -3359,15 +3359,15 @@ class GameScene extends Phaser.Scene {
     const totalButtonWidth = 5 * buttonWidth + 4 * gap;
     const startX = (totalWidth - totalButtonWidth) / 2 + buttonWidth / 2;
 
-    // Create all buttons
-    this.startBtn = createBtn(startX, '▶️ START', () => {
-        if (!this.gameStarted) this.startGame();
-      });
-  
-    this.jumpBtn = createBtn(startX + buttonWidth + gap, '🚀 JUMP', () => {
+    // Create all buttons - Jump button positioned first for mobile accessibility
+    this.jumpBtn = createBtn(startX, '🚀 JUMP', () => {
         if (this.gameStarted && !this.gameOver && !this.isPaused) this.jump();
       });
       this.jumpBtn.setVisible(false);
+  
+    this.startBtn = createBtn(startX + buttonWidth + gap, '▶️ START', () => {
+        if (!this.gameStarted) this.startGame();
+      });
   
     this.pauseBtn = createBtn(startX + (buttonWidth + gap) * 2, '⏸ PAUSE', () => {
         if (this.gameStarted && !this.gameOver) this.togglePause();
@@ -3978,7 +3978,7 @@ initializeLocalStorage();
 // Optimized for cross-platform compatibility and performance
 // ============================================================================
   
-const config = {
+  const config = {
   // ========================================================================
   // RENDERER CONFIGURATION
   // ========================================================================
@@ -3990,7 +3990,7 @@ const config = {
   // ========================================================================
   // PHYSICS SYSTEM CONFIGURATION
   // ========================================================================
-  physics: {
+    physics: {
     default: 'arcade',                  // Use Arcade Physics (lightweight 2D physics)
     arcade: { 
       gravity: { y: GAME_CONFIG.GRAVITY },  // Apply gravity from configuration
@@ -4013,7 +4013,7 @@ const config = {
   // ========================================================================
   // SCALING AND DISPLAY CONFIGURATION
   // ========================================================================
-  scale: {
+    scale: {
     mode: Phaser.Scale.AUTO,             // Scale to fit screen while maintaining aspect ratio
     autoCenter: Phaser.Scale.CENTER_BOTH, // Center the game on screen
     orientation: Phaser.Scale.LANDSCAPE,  // Default to landscape orientation
