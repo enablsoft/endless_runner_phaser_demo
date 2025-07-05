@@ -2,6 +2,7 @@
 // FEATURE MODULES IMPORT
 // ============================================================================
 // Import all feature modules for modular game architecture
+// Each manager handles a specific aspect of the game functionality
 // ============================================================================
 
 import { 
@@ -34,6 +35,7 @@ import {
 // GLOBAL MANAGERS INITIALIZATION
 // ============================================================================
 // Initialize global manager instances for use across all scenes
+// These managers provide centralized functionality for game features
 // ============================================================================
 
 const globalManagers = {
@@ -50,6 +52,7 @@ const globalManagers = {
 // ============================================================================
 // Centralized configuration for all game parameters
 // Makes it easy to adjust game balance and behavior
+// All values can be tuned here for different difficulty levels
 const GAME_CONFIG = {
   // Display settings
   WIDTH: 800,                    // Canvas width in pixels
@@ -97,6 +100,7 @@ const GAME_CONFIG = {
 // ============================================================================
 // Defines styling and layout for all user interface elements
 // Ensures consistent appearance across all scenes
+// All UI styling can be modified here for theme changes
 const UI_CONFIG = {
   // Standard button styling for most UI buttons
   BUTTON_STYLE: {
@@ -155,6 +159,7 @@ const UI_CONFIG = {
 // - Game instructions and controls overview
 // - Dynamic cloud background system
 // - Responsive layout with proper spacing
+// - Mobile fullscreen trigger on first interaction
 // ============================================================================
 
 class MainMenuScene extends Phaser.Scene {
@@ -716,6 +721,7 @@ class MainMenuScene extends Phaser.Scene {
 // - Statistics viewing and analytics
 // - Persistent data storage in localStorage
 // - Mobile-responsive design with orientation detection
+// - Tabbed interface for organized settings management
 // ============================================================================
 
 class SettingsScene extends Phaser.Scene {
@@ -740,6 +746,10 @@ class SettingsScene extends Phaser.Scene {
     this.createBackButton();        // Create navigation back button
   }
 
+  /**
+   * Creates the sky blue background for the settings scene
+   * Uses a simple rectangle that covers the entire canvas
+   */
   createBackground() {
     this.add.rectangle(
       GAME_CONFIG.WIDTH / 2, 
@@ -750,6 +760,10 @@ class SettingsScene extends Phaser.Scene {
     );
   }
 
+  /**
+   * Creates the animated title for the settings scene
+   * Features modern styling with shadows and entrance animations
+   */
   createTitle() {
     // Main title with modern styling
     const titleText = this.add.text(GAME_CONFIG.WIDTH / 2, 80, '⚙️ SETTINGS', {
@@ -781,6 +795,11 @@ class SettingsScene extends Phaser.Scene {
     });
   }
 
+  /**
+   * Creates the main settings interface with tabbed navigation
+   * Initializes all settings tabs and their content
+   * Features: Profile, Display, Ads, and Data management
+   */
   createSettings() {
     // Get current settings using SettingsManager
     const currentUsername = globalManagers.settingsManager.getUsername();
@@ -826,6 +845,11 @@ class SettingsScene extends Phaser.Scene {
     this.animateTabEntrance();
   }
 
+  /**
+   * Creates the tab navigation system for settings
+   * Features four tabs: Profile, Display, Ads, and Data
+   * Each tab has unique colors and hover effects
+   */
   createTabNavigation() {
     const tabConfigs = [
       { key: 'profile', text: '👤 PROFILE', color: '#2196F3' },
@@ -878,11 +902,16 @@ class SettingsScene extends Phaser.Scene {
     });
   }
 
+  /**
+   * Creates the Profile tab with user settings
+   * Features: Username management and gender selection
+   * Uses modern UI design with clean typography and spacing
+   */
   createProfileTab(currentUsername, playerGender) {
     const content = this.add.container(0, 220);
     this.tabContent['profile'] = content;
 
-    // Create background panel for profile content - with proper margin space
+    // Create background panel for profile content
     const contentBg = this.add.rectangle(
       GAME_CONFIG.WIDTH / 2,
       120,
@@ -892,7 +921,7 @@ class SettingsScene extends Phaser.Scene {
       0.95
     ).setStrokeStyle(3, 0x2196F3, 0.8);
 
-    // Profile title within the box - with proper top margin
+    // Profile title within the box
     const profileTitle = this.add.text(GAME_CONFIG.WIDTH / 2, 0, '👤 PROFILE SETTINGS', {
       fontSize: '24px',
       fill: '#2196F3',
@@ -999,11 +1028,16 @@ class SettingsScene extends Phaser.Scene {
     content.add([contentBg, profileTitle, usernameTitle, usernameBg, this.usernameText, changeUsernameButton, genderTitle, maleButton, femaleButton]);
   }
 
+  /**
+   * Creates the Display tab with screen and orientation settings
+   * Features: Fullscreen mode control and mobile device information
+   * Provides immersive gaming experience options
+   */
   createDisplayTab() {
     const content = this.add.container(0, 220);
     this.tabContent['display'] = content;
 
-    // Create background panel for display content - with proper margin space
+    // Create background panel for display content
     const contentBg = this.add.rectangle(
       GAME_CONFIG.WIDTH / 2,
       100,
@@ -1013,7 +1047,7 @@ class SettingsScene extends Phaser.Scene {
       0.95
     ).setStrokeStyle(3, 0x9C27B0, 0.8);
 
-    // Display title within the box - with proper top margin
+    // Display title within the box
     const displayTitle = this.add.text(GAME_CONFIG.WIDTH / 2, 30, '🖥️ DISPLAY SETTINGS', {
       fontSize: '24px',
       fill: '#9C27B0',
@@ -1023,7 +1057,7 @@ class SettingsScene extends Phaser.Scene {
       strokeThickness: 2
     }).setOrigin(0.5);
 
-    // Fullscreen section title - better spacing
+    // Fullscreen section title
     const fullscreenTitle = this.add.text(GAME_CONFIG.WIDTH / 2, 65, '🔍 FULLSCREEN MODE', {
       fontSize: '20px',
       fill: '#333',
@@ -1031,7 +1065,7 @@ class SettingsScene extends Phaser.Scene {
       fontStyle: 'bold'
     }).setOrigin(0.5);
 
-    // Fullscreen button - positioned within the box with better spacing
+    // Fullscreen button with dynamic text based on support
     const fullscreenButtonText = this.isFullscreenSupported() ? '🔍 ENTER FULLSCREEN' : '🔍 FULLSCREEN NOT SUPPORTED';
     const fullscreenButtonColor = this.isFullscreenSupported() ? '#9C27B0' : '#666666';
     
@@ -1047,7 +1081,7 @@ class SettingsScene extends Phaser.Scene {
       borderRadius: 8
     }).setOrigin(0.5).setInteractive({ useHandCursor: this.isFullscreenSupported() });
 
-    // Fullscreen description - better spacing
+    // Fullscreen description
     const fullscreenDesc = this.add.text(GAME_CONFIG.WIDTH / 2, 155, 'Toggle immersive fullscreen gaming experience', {
       fontSize: '16px',
       fill: '#666',
@@ -1055,7 +1089,7 @@ class SettingsScene extends Phaser.Scene {
       align: 'center'
     }).setOrigin(0.5);
 
-    // Mobile info - better spacing with bottom margin
+    // Mobile device information
     const mobileInfo = this.add.text(GAME_CONFIG.WIDTH / 2, 190, '📱 Mobile devices auto-enter fullscreen on first interaction', {
       fontSize: '14px',
       fill: '#999',
@@ -1080,11 +1114,16 @@ class SettingsScene extends Phaser.Scene {
     content.add([contentBg, displayTitle, fullscreenTitle, fullscreenButton, fullscreenDesc, mobileInfo]);
   }
 
+  /**
+   * Creates the Ads tab with advertisement control settings
+   * Features: Enable/disable ads, view statistics, and ad frequency information
+   * Provides user control over advertising experience
+   */
   createAdsTab(showAds) {
     const content = this.add.container(0, 200);
     this.tabContent['ads'] = content;
 
-    // Create background panel for ads content - with margin space
+    // Create background panel for ads content
     const contentBg = this.add.rectangle(
       GAME_CONFIG.WIDTH / 2,
       85,
@@ -1094,7 +1133,7 @@ class SettingsScene extends Phaser.Scene {
       0.95
     ).setStrokeStyle(3, 0xFF9800, 0.8);
 
-    // Ads title within the box - with top margin
+    // Ads title within the box
     const adsTitle = this.add.text(GAME_CONFIG.WIDTH / 2, 20, '📺 ADS SETTINGS', {
       fontSize: '20px',
       fill: '#FF9800',
@@ -1112,13 +1151,13 @@ class SettingsScene extends Phaser.Scene {
       align: 'center'
     }).setOrigin(0.5);
 
-    // Calculate button positions for ads section - smaller buttons within box
+    // Calculate button positions for ads section
     const adsButtonWidth = 120;
     const adsGap = 20;
     const adsTotalWidth = adsButtonWidth * 3 + adsGap * 2;
     const adsStartX = (GAME_CONFIG.WIDTH - adsTotalWidth) / 2 + adsButtonWidth / 2;
 
-    // Enable ads button - positioned within the box
+    // Enable ads button
     const enableAdsButton = this.add.text(adsStartX, 90, '✅ ENABLE ADS', {
       fontSize: '14px',
       fill: '#ffffff',
@@ -1131,7 +1170,7 @@ class SettingsScene extends Phaser.Scene {
       borderRadius: 6
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-    // Disable ads button - positioned within the box
+    // Disable ads button
     const disableAdsButton = this.add.text(adsStartX + adsButtonWidth + adsGap, 90, '❌ DISABLE ADS', {
       fontSize: '14px',
       fill: '#ffffff',
@@ -1144,7 +1183,7 @@ class SettingsScene extends Phaser.Scene {
       borderRadius: 6
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-    // Statistics button - positioned within the box
+    // Statistics button
     const statsButton = this.add.text(adsStartX + (adsButtonWidth + adsGap) * 2, 90, '📊 STATISTICS', {
       fontSize: '14px',
       fill: '#ffffff',
@@ -1157,7 +1196,7 @@ class SettingsScene extends Phaser.Scene {
       borderRadius: 6
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-    // Ad frequency info - with bottom margin
+    // Ad frequency information
     const adInfo = this.add.text(GAME_CONFIG.WIDTH / 2, 140, '📺 Ads appear every 3 games when enabled', {
       fontSize: '10px',
       fill: '#999',
@@ -1186,11 +1225,16 @@ class SettingsScene extends Phaser.Scene {
     content.add([contentBg, adsTitle, adsDesc, enableAdsButton, disableAdsButton, statsButton, adInfo]);
   }
 
+  /**
+   * Creates the Data tab with data management options
+   * Features: Clear leaderboard functionality with confirmation
+   * Provides data reset capabilities with safety warnings
+   */
   createDataTab() {
     const content = this.add.container(0, 200);
     this.tabContent['data'] = content;
 
-    // Create background panel for data content - with margin space
+    // Create background panel for data content
     const contentBg = this.add.rectangle(
       GAME_CONFIG.WIDTH / 2,
       85,
@@ -1200,7 +1244,7 @@ class SettingsScene extends Phaser.Scene {
       0.95
     ).setStrokeStyle(3, 0xF44336, 0.8);
 
-    // Data title within the box - with top margin
+    // Data title within the box
     const dataTitle = this.add.text(GAME_CONFIG.WIDTH / 2, 20, '🗄️ DATA MANAGEMENT', {
       fontSize: '20px',
       fill: '#F44336',
@@ -1227,7 +1271,7 @@ class SettingsScene extends Phaser.Scene {
       align: 'center'
     }).setOrigin(0.5);
 
-    // Clear leaderboard button - positioned within the box
+    // Clear leaderboard button
     const clearLeaderboardButton = this.add.text(GAME_CONFIG.WIDTH / 2, 120, '🗑️ CLEAR ALL SCORES', {
       fontSize: '16px',
       fill: '#ffffff',
@@ -1240,7 +1284,7 @@ class SettingsScene extends Phaser.Scene {
       borderRadius: 8
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-    // Clear leaderboard description - with bottom margin
+    // Clear leaderboard description
     const clearDesc = this.add.text(GAME_CONFIG.WIDTH / 2, 160, 'This will permanently delete all leaderboard scores and reset your high score', {
       fontSize: '10px',
       fill: '#999',
@@ -1257,6 +1301,11 @@ class SettingsScene extends Phaser.Scene {
     content.add([contentBg, dataTitle, dataDesc, warningText, clearLeaderboardButton, clearDesc]);
   }
 
+  /**
+   * Switches between different settings tabs
+   * Updates tab button appearances and shows/hides content
+   * @param {string} tabKey - The tab to switch to ('profile', 'display', 'ads', 'data')
+   */
   showTab(tabKey) {
     // Update current tab
     this.currentTab = tabKey;
@@ -1291,6 +1340,11 @@ class SettingsScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * Animates the entrance of tab navigation and content
+   * Creates smooth entrance effects for better user experience
+   * Staggers animations for visual appeal
+   */
   animateTabEntrance() {
     // Animate tab navigation
     Object.values(this.tabs).forEach((tab, index) => {
@@ -1324,6 +1378,11 @@ class SettingsScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * Creates an interactive username input overlay
+   * Features: Modal dialog with input field, real-time text input, and validation
+   * Provides smooth user experience for username changes
+   */
   startUsernameInput() {
     // Create input field overlay with better visibility
     const inputBg = this.add.rectangle(
@@ -3848,18 +3907,13 @@ class GameScene extends Phaser.Scene {
 // ============================================================================
 // Ensures all required localStorage values are properly initialized
 // Called once when the game loads for the first time
-// ============================================================================
-
-// ============================================================================
-// LOCAL STORAGE INITIALIZATION
-// ============================================================================
-// Ensures all required localStorage values are properly initialized
-// Called once when the game loads for the first time
+// Provides data persistence across game sessions
 // ============================================================================
 
 /**
  * Initialize localStorage with default values if they don't exist
  * This ensures the game works properly on first load
+ * Sets up all required game data with sensible defaults
  */
 function initializeLocalStorage() {
   // Check if this is the first time loading the game
@@ -3924,7 +3978,7 @@ initializeLocalStorage();
 // Optimized for cross-platform compatibility and performance
 // ============================================================================
   
-  const config = {
+const config = {
   // ========================================================================
   // RENDERER CONFIGURATION
   // ========================================================================
@@ -3936,7 +3990,7 @@ initializeLocalStorage();
   // ========================================================================
   // PHYSICS SYSTEM CONFIGURATION
   // ========================================================================
-    physics: {
+  physics: {
     default: 'arcade',                  // Use Arcade Physics (lightweight 2D physics)
     arcade: { 
       gravity: { y: GAME_CONFIG.GRAVITY },  // Apply gravity from configuration
@@ -3959,7 +4013,7 @@ initializeLocalStorage();
   // ========================================================================
   // SCALING AND DISPLAY CONFIGURATION
   // ========================================================================
-    scale: {
+  scale: {
     mode: Phaser.Scale.AUTO,             // Scale to fit screen while maintaining aspect ratio
     autoCenter: Phaser.Scale.CENTER_BOTH, // Center the game on screen
     orientation: Phaser.Scale.LANDSCAPE,  // Default to landscape orientation
@@ -3980,9 +4034,14 @@ const game = new Phaser.Game(config);
 // ============================================================================
 // Automatically request fullscreen on mobile devices for better gaming experience
 // Only triggers on first load and requires user interaction
+// Provides enhanced mobile gaming experience
 // ============================================================================
 
-// Function to handle mobile fullscreen initialization
+/**
+ * Function to handle mobile fullscreen initialization
+ * Checks device compatibility and user preferences before requesting fullscreen
+ * Ensures optimal mobile gaming experience
+ */
 function initializeMobileFullscreen() {
   // Only proceed if this is a mobile device
   if (!globalManagers.orientationManager.isMobileDevice()) {
