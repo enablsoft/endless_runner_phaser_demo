@@ -2,14 +2,17 @@
 // ENDLESS RUNNER GAME - Phaser 3 Implementation
 // ============================================================================
 // A complete endless runner game built with Phaser 3 featuring:
-// - Player movement with jumping mechanics
-// - Procedurally generated obstacles and coins
-// - Score system with persistent high scores
-// - Level progression with increasing difficulty
-// - Power-ups and revive system
-// - Ad integration with statistics tracking
+// - Player movement with jumping mechanics and physics
+// - Procedurally generated obstacles and collectible coins
+// - Comprehensive scoring system with persistent high scores
+// - Dynamic level progression with increasing difficulty
+// - Power-up system with revive functionality
+// - Ad integration with detailed statistics tracking
 // - Multiple scenes: Main Menu, Game, Settings, Leaderboard, Statistics
-// - Animated backgrounds with cloud system
+// - Animated backgrounds with dynamic cloud system
+// - Mobile-responsive design with orientation support
+// - Fullscreen and display settings management
+// - Professional UI/UX with modern styling
 // ============================================================================
 
 // ============================================================================
@@ -114,23 +117,29 @@ const UI_CONFIG = {
 // ============================================================================
 // MAIN MENU SCENE
 // ============================================================================
-// The main entry point of the game
-// Displays the title, high score, navigation buttons, and game instructions
-// Features animated title, persistent high score display, and cloud background
+// The main entry point and first scene users encounter
+// Features:
+// - Animated title with modern styling and entrance effects
+// - Persistent high score display from localStorage
+// - Navigation buttons to all game sections
+// - Game instructions and controls overview
+// - Dynamic cloud background system
+// - Responsive layout with proper spacing
 // ============================================================================
 
 class MainMenuScene extends Phaser.Scene {
   /**
    * Constructor for the main menu scene
-   * Sets up the scene name for navigation
+   * Sets up the scene name for navigation between scenes
    */
-    constructor() {
+  constructor() {
     super('MainMenuScene');
   }
 
   /**
    * Main create method called when the scene starts
-   * Initializes all visual elements in the correct order
+   * Initializes all visual elements in the correct order for proper layering
+   * Background → Clouds → Title → High Score → Buttons → Instructions
    */
   create() {
     this.createBackground();        // Create the sky blue background
@@ -624,18 +633,37 @@ class MainMenuScene extends Phaser.Scene {
 // ============================================================================
 // SETTINGS SCENE
 // ============================================================================
+// Comprehensive settings and configuration management
+// Features:
+// - Username editing with canvas-based input system
+// - Ad preferences (enable/disable with statistics tracking)
+// - Display settings (fullscreen, orientation controls)
+// - Leaderboard management (clear all scores)
+// - Statistics viewing and analytics
+// - Persistent data storage in localStorage
+// - Mobile-responsive design with orientation detection
+// ============================================================================
 
 class SettingsScene extends Phaser.Scene {
+  /**
+   * Constructor for the settings scene
+   * Sets up the scene name for navigation between scenes
+   */
   constructor() {
     super('SettingsScene');
-    }
-  
-    create() {
-    this.createBackground();
-    globalCloudManager.start(this);
-    this.createTitle();
-    this.createSettings();
-    this.createBackButton();
+  }
+
+  /**
+   * Main create method called when the scene starts
+   * Initializes all visual elements in the correct order for proper layering
+   * Background → Clouds → Title → Settings → Back Button
+   */
+  create() {
+    this.createBackground();        // Create the sky blue background
+    globalCloudManager.start(this); // Start animated cloud system
+    this.createTitle();             // Create animated title
+    this.createSettings();          // Create all settings sections
+    this.createBackButton();        // Create navigation back button
   }
 
   createBackground() {
@@ -734,22 +762,65 @@ class SettingsScene extends Phaser.Scene {
       this.startUsernameInput();
     });
 
-    // Ads section
-    this.add.text(GAME_CONFIG.WIDTH / 2, 260, '📺 ADS SETTINGS', {
+    // Display settings section - moved above ads
+    this.add.text(GAME_CONFIG.WIDTH / 2, 260, '🖥️ DISPLAY SETTINGS', {
       fontSize: '24px',
       fill: '#000',
       fontFamily: 'Arial',
       fontStyle: 'bold'
     }).setOrigin(0.5);
 
-    // Calculate button positions for side-by-side layout like main menu
-    const buttonWidth = 160;
-    const gap = 40;
-    const totalWidth = buttonWidth * 3 + gap * 2; // Now 3 buttons
-    const startX = (GAME_CONFIG.WIDTH - totalWidth) / 2 + buttonWidth / 2;
+    // Calculate button position for centered fullscreen button
+    const buttonWidth = 200; // Slightly wider for better appearance
+    const startX = GAME_CONFIG.WIDTH / 2; // Center of screen
+
+    // Fullscreen button - centered
+    const fullscreenButtonText = this.isFullscreenSupported() ? '🔍 ENTER FULLSCREEN' : '🔍 FULLSCREEN NOT SUPPORTED';
+    const fullscreenButtonColor = this.isFullscreenSupported() ? '#9C27B0' : '#666666';
+    
+    const fullscreenButton = this.add.text(startX, 320, fullscreenButtonText, {
+      fontSize: '18px',
+      fill: '#ffffff',
+      fontFamily: 'Arial',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 2,
+      backgroundColor: fullscreenButtonColor,
+      padding: { x: 20, y: 10 },
+      borderRadius: 8
+    }).setOrigin(0.5).setInteractive({ useHandCursor: this.isFullscreenSupported() });
+
+    // Fullscreen button interaction
+    fullscreenButton.on('pointerdown', () => {
+      if (this.isFullscreenSupported()) {
+        this.toggleFullscreen(fullscreenButton);
+      } else {
+        this.showFullscreenNotSupportedMessage();
+      }
+    });
+
+    // Add event listeners for automatic button text updates
+    this.addOrientationListeners(fullscreenButton, null);
+
+    // Initialize button text based on current state
+    this.initializeButtonStates(fullscreenButton, null);
+
+    // Ads section - moved below display settings
+    this.add.text(GAME_CONFIG.WIDTH / 2, 380, '📺 ADS SETTINGS', {
+      fontSize: '24px',
+      fill: '#000',
+      fontFamily: 'Arial',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+
+    // Calculate button positions for ads section
+    const adsButtonWidth = 160;
+    const adsGap = 40;
+    const adsTotalWidth = adsButtonWidth * 3 + adsGap * 2; // 3 buttons for ads
+    const adsStartX = (GAME_CONFIG.WIDTH - adsTotalWidth) / 2 + adsButtonWidth / 2;
 
     // Enable ads button - left side
-    const enableAdsButton = this.add.text(startX, 320, '✅ ENABLE ADS', {
+    const enableAdsButton = this.add.text(adsStartX, 440, '✅ ENABLE ADS', {
       fontSize: '18px',
       fill: '#ffffff',
       fontFamily: 'Arial',
@@ -762,7 +833,7 @@ class SettingsScene extends Phaser.Scene {
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
     // Disable ads button - right side
-    const disableAdsButton = this.add.text(startX + buttonWidth + gap, 320, '❌ DISABLE ADS', {
+    const disableAdsButton = this.add.text(adsStartX + adsButtonWidth + adsGap, 440, '❌ DISABLE ADS', {
       fontSize: '18px',
       fill: '#ffffff',
       fontFamily: 'Arial',
@@ -775,7 +846,7 @@ class SettingsScene extends Phaser.Scene {
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
     // Statistics button - third position
-    const statsButton = this.add.text(startX + (buttonWidth + gap) * 2, 320, '📊 STATISTICS', {
+    const statsButton = this.add.text(adsStartX + (adsButtonWidth + adsGap) * 2, 440, '📊 STATISTICS', {
       fontSize: '18px',
       fill: '#ffffff',
       fontFamily: 'Arial',
@@ -807,7 +878,7 @@ class SettingsScene extends Phaser.Scene {
     });
 
     // Clear leaderboard section
-    this.add.text(GAME_CONFIG.WIDTH / 2, 380, '🗑️ CLEAR LEADERBOARD', {
+    this.add.text(GAME_CONFIG.WIDTH / 2, 500, '🗑️ CLEAR LEADERBOARD', {
       fontSize: '24px',
       fill: '#000',
       fontFamily: 'Arial',
@@ -815,7 +886,7 @@ class SettingsScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Clear leaderboard button
-    const clearLeaderboardButton = this.add.text(GAME_CONFIG.WIDTH / 2, 440, '🗑️ CLEAR ALL SCORES', {
+    const clearLeaderboardButton = this.add.text(GAME_CONFIG.WIDTH / 2, 560, '🗑️ CLEAR ALL SCORES', {
       fontSize: '18px',
       fill: '#ffffff',
       fontFamily: 'Arial',
@@ -851,7 +922,9 @@ class SettingsScene extends Phaser.Scene {
     });
 
     // Add entrance animations for main elements
-    [usernameBg, this.usernameText, changeUsernameButton, enableAdsButton, disableAdsButton, statsButton, clearLeaderboardButton].forEach((element, index) => {
+    const elementsToAnimate = [usernameBg, this.usernameText, changeUsernameButton, enableAdsButton, disableAdsButton, statsButton, clearLeaderboardButton, fullscreenButton];
+    
+    elementsToAnimate.forEach((element, index) => {
       element.setAlpha(0);
       element.setY(element.y + 50);
       
@@ -1004,30 +1077,58 @@ class SettingsScene extends Phaser.Scene {
     // Initial cursor position
     updateCursorPosition();
     
+    // Create hidden HTML input for mobile keyboard support
+    const hiddenInput = document.createElement('input');
+    hiddenInput.type = 'text';
+    hiddenInput.style.position = 'absolute';
+    hiddenInput.style.left = '-9999px';
+    hiddenInput.style.top = '-9999px';
+    hiddenInput.style.opacity = '0';
+    hiddenInput.style.pointerEvents = 'none';
+    hiddenInput.value = currentInput;
+    hiddenInput.maxLength = 20;
+    document.body.appendChild(hiddenInput);
+    
+    // Focus hidden input to trigger mobile keyboard
+    setTimeout(() => {
+      hiddenInput.focus();
+      hiddenInput.select();
+    }, 100);
+    
+    // Handle input changes from mobile keyboard
+    hiddenInput.addEventListener('input', (event) => {
+      currentInput = event.target.value;
+      inputText.setText(currentInput);
+      updateCursorPosition();
+    });
+    
+    // Handle keyboard input for desktop
     this.input.keyboard.on('keydown', (event) => {
       if (event.key === 'Enter') {
-        this.saveUsername(currentInput, [inputBg, inputBox, inputLabel, inputText, cursor, saveButton, cancelButton]);
+        this.saveUsername(currentInput, [inputBg, inputBox, inputLabel, inputText, cursor, saveButton, cancelButton, hiddenInput]);
       } else if (event.key === 'Escape') {
-        this.cancelUsernameInput([inputBg, inputBox, inputLabel, inputText, cursor, saveButton, cancelButton]);
+        this.cancelUsernameInput([inputBg, inputBox, inputLabel, inputText, cursor, saveButton, cancelButton, hiddenInput]);
       } else if (event.key === 'Backspace') {
         currentInput = currentInput.slice(0, -1);
         inputText.setText(currentInput);
+        hiddenInput.value = currentInput;
         updateCursorPosition();
       } else if (event.key.length === 1 && currentInput.length < 20) {
         currentInput += event.key;
         inputText.setText(currentInput);
+        hiddenInput.value = currentInput;
         updateCursorPosition();
       }
     });
 
     // Save button interaction
     saveButton.on('pointerdown', () => {
-      this.saveUsername(currentInput, [inputBg, inputBox, inputLabel, inputText, cursor, saveButton, cancelButton]);
+      this.saveUsername(currentInput, [inputBg, inputBox, inputLabel, inputText, cursor, saveButton, cancelButton, hiddenInput]);
     });
 
     // Cancel button interaction
     cancelButton.on('pointerdown', () => {
-      this.cancelUsernameInput([inputBg, inputBox, inputLabel, inputText, cursor, saveButton, cancelButton]);
+      this.cancelUsernameInput([inputBg, inputBox, inputLabel, inputText, cursor, saveButton, cancelButton, hiddenInput]);
     });
 
     // Focus on input
@@ -1243,8 +1344,8 @@ class SettingsScene extends Phaser.Scene {
       fill: '#ffff00'
     };
     
-    const backButton = this.add.text(GAME_CONFIG.WIDTH / 2, 520, '← BACK TO MENU', buttonStyle)
-      .setOrigin(0.5)
+    const backButton = this.add.text(20, 20, '← BACK', buttonStyle)
+      .setOrigin(0, 0)
       .setInteractive({ useHandCursor: true })
       .setDepth(10);
 
@@ -1291,6 +1392,308 @@ class SettingsScene extends Phaser.Scene {
         ease: 'Power2'
       });
     });
+  }
+
+  toggleFullscreen(fullscreenButton) {
+    if (!document.fullscreenElement) {
+      // Enter fullscreen
+      try {
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(error => {
+            console.log('Fullscreen request failed:', error);
+            this.showFullscreenError();
+          });
+        } else if (document.documentElement.webkitRequestFullscreen) {
+          document.documentElement.webkitRequestFullscreen().catch(error => {
+            console.log('Webkit fullscreen request failed:', error);
+            this.showFullscreenError();
+          });
+        } else if (document.documentElement.msRequestFullscreen) {
+          document.documentElement.msRequestFullscreen().catch(error => {
+            console.log('MS fullscreen request failed:', error);
+            this.showFullscreenError();
+          });
+        } else {
+          console.log('Fullscreen API not supported');
+          this.showFullscreenError();
+        }
+      } catch (error) {
+        console.log('Fullscreen request error:', error);
+        this.showFullscreenError();
+      }
+    } else {
+      // Exit fullscreen
+      try {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(error => {
+            console.log('Exit fullscreen failed:', error);
+          });
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen().catch(error => {
+            console.log('Webkit exit fullscreen failed:', error);
+          });
+        } else if (document.msExitFullscreen) {
+          document.msExitFullscreen().catch(error => {
+            console.log('MS exit fullscreen failed:', error);
+          });
+        }
+      } catch (error) {
+        console.log('Exit fullscreen error:', error);
+      }
+    }
+  }
+
+  requestLandscape(landscapeButton) {
+    // Check current orientation using global manager
+    const currentOrientation = globalOrientationManager.getCurrentOrientation();
+    
+    if (currentOrientation === 'landscape') {
+      // Currently in landscape, request portrait
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('portrait').catch(() => {
+          // Fallback: show message to user
+          this.showOrientationMessage('portrait');
+        });
+      } else {
+        // Fallback for devices that don't support orientation lock
+        this.showOrientationMessage('portrait');
+      }
+      // Update button text
+      landscapeButton.setText('📱 LANDSCAPE MODE');
+    } else {
+      // Currently in portrait, request landscape
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(() => {
+          // Fallback: show message to user
+          this.showOrientationMessage('landscape');
+        });
+      } else {
+        // Fallback for devices that don't support orientation lock
+        this.showOrientationMessage('landscape');
+      }
+      // Update button text
+      landscapeButton.setText('📱 PORTRAIT MODE');
+    }
+  }
+
+  showOrientationMessage(orientation) {
+    // Create a simple message popup
+    const messageBg = this.add.rectangle(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2,
+      400,
+      150,
+      0x000000,
+      0.9
+    ).setDepth(30);
+
+    const messageText = this.add.text(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2,
+      orientation === 'landscape' 
+        ? '📱 Please rotate your device\nto landscape mode\nfor the best experience!'
+        : '📱 Please rotate your device\nto portrait mode\nfor the best experience!',
+      {
+        fontSize: '18px',
+        fill: '#ffffff',
+        fontFamily: 'Arial',
+        align: 'center',
+        stroke: '#000000',
+        strokeThickness: 2
+      }
+    ).setOrigin(0.5).setDepth(31);
+
+    const closeButton = this.add.text(
+      GAME_CONFIG.WIDTH / 2,
+      GAME_CONFIG.HEIGHT / 2 + 60,
+      'OK',
+      {
+        fontSize: '16px',
+        fill: '#ffffff',
+        fontFamily: 'Arial',
+        fontStyle: 'bold',
+        backgroundColor: '#4CAF50',
+        padding: { x: 20, y: 8 },
+        borderRadius: 6,
+        stroke: '#000000',
+        strokeThickness: 2
+      }
+    ).setOrigin(0.5).setInteractive({ useHandCursor: true }).setDepth(31);
+
+    closeButton.on('pointerdown', () => {
+      messageBg.destroy();
+      messageText.destroy();
+      closeButton.destroy();
+    });
+
+    // Auto-close after 5 seconds
+    this.time.delayedCall(5000, () => {
+      if (messageBg.active) {
+        messageBg.destroy();
+        messageText.destroy();
+        closeButton.destroy();
+      }
+    });
+  }
+
+  // Add event listeners for fullscreen and orientation changes
+  addOrientationListeners(fullscreenButton, landscapeButton) {
+    // Store references to buttons for cleanup
+    this.fullscreenButton = fullscreenButton;
+    this.landscapeButton = landscapeButton;
+    
+    // Listen for fullscreen changes
+    this.fullscreenChangeHandler = () => {
+      // Check if button still exists and is active before updating
+      if (this.fullscreenButton && this.fullscreenButton.active) {
+        if (document.fullscreenElement) {
+          this.fullscreenButton.setText('🔍 EXIT FULLSCREEN');
+        } else {
+          this.fullscreenButton.setText('🔍 ENTER FULLSCREEN');
+        }
+      }
+    };
+    document.addEventListener('fullscreenchange', this.fullscreenChangeHandler);
+
+    // Use global orientation manager for orientation changes
+    if (landscapeButton) {
+      this.orientationCallback = (newOrientation) => {
+        // Check if button still exists and is active before updating
+        if (this.landscapeButton && this.landscapeButton.active) {
+          if (newOrientation === 'landscape') {
+            this.landscapeButton.setText('📱 PORTRAIT MODE');
+          } else {
+            this.landscapeButton.setText('📱 LANDSCAPE MODE');
+          }
+        }
+      };
+      
+      // Register with global orientation manager
+      globalOrientationManager.addListener(this.orientationCallback);
+    }
+  }
+
+  // Initialize button text based on current state
+  initializeButtonStates(fullscreenButton, landscapeButton) {
+    // Set fullscreen button text based on current state
+    if (document.fullscreenElement) {
+      fullscreenButton.setText('🔍 EXIT FULLSCREEN');
+    } else {
+      fullscreenButton.setText('🔍 ENTER FULLSCREEN');
+    }
+
+    // Set landscape button text based on current orientation (only if button exists)
+    if (landscapeButton) {
+      const currentOrientation = globalOrientationManager.getCurrentOrientation();
+      if (currentOrientation === 'landscape') {
+        landscapeButton.setText('📱 PORTRAIT MODE');
+      } else {
+        landscapeButton.setText('📱 LANDSCAPE MODE');
+      }
+    }
+  }
+
+  // Check if device is mobile
+  isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+           window.innerWidth <= 768;
+  }
+
+  // Check if fullscreen is supported
+  isFullscreenSupported() {
+    return !!(document.fullscreenEnabled || 
+              document.webkitFullscreenEnabled || 
+              document.mozFullScreenEnabled || 
+              document.msFullscreenEnabled);
+  }
+
+
+
+  // Apply stored orientation preference
+  applyStoredOrientationPreference() {
+    const storedOrientation = globalOrientationManager.getStoredOrientation();
+    const currentOrientation = globalOrientationManager.getCurrentOrientation();
+    
+    // Only apply if different from current orientation
+    if (storedOrientation !== currentOrientation) {
+      console.log(`Applying stored orientation preference: ${storedOrientation}`);
+      
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock(storedOrientation).catch(() => {
+          console.log('Could not lock orientation, showing message instead');
+          this.showOrientationMessage(storedOrientation);
+        });
+      } else {
+        this.showOrientationMessage(storedOrientation);
+      }
+    }
+  }
+
+  // Show fullscreen error message
+  showFullscreenError() {
+    // Create a popup message
+    const popup = this.add.graphics();
+    popup.fillStyle(0x000000, 0.8);
+    popup.fillRoundedRect(100, 200, 600, 200, 20);
+    popup.lineStyle(2, 0xffffff);
+    popup.strokeRoundedRect(100, 200, 600, 200, 20);
+
+    const message = this.add.text(400, 300, '⚠️ Fullscreen requires user interaction\n\nPlease click the button again to enter fullscreen mode.', {
+      fontSize: '16px',
+      fill: '#ffffff',
+      fontFamily: 'Arial',
+      align: 'center',
+      wordWrap: { width: 580 }
+    }).setOrigin(0.5);
+
+    // Auto-remove after 3 seconds
+    this.time.delayedCall(3000, () => {
+      popup.destroy();
+      message.destroy();
+    });
+  }
+
+  // Show fullscreen not supported message
+  showFullscreenNotSupportedMessage() {
+    // Create a popup message
+    const popup = this.add.graphics();
+    popup.fillStyle(0x000000, 0.8);
+    popup.fillRoundedRect(100, 200, 600, 200, 20);
+    popup.lineStyle(2, 0xffffff);
+    popup.strokeRoundedRect(100, 200, 600, 200, 20);
+
+    const message = this.add.text(400, 300, '❌ Fullscreen is not supported in this browser\n\nTry using F11 key or browser menu instead.', {
+      fontSize: '16px',
+      fill: '#ffffff',
+      fontFamily: 'Arial',
+      align: 'center',
+      wordWrap: { width: 580 }
+    }).setOrigin(0.5);
+
+    // Auto-remove after 3 seconds
+    this.time.delayedCall(3000, () => {
+      popup.destroy();
+      message.destroy();
+    });
+  }
+
+  // Cleanup event listeners when scene is destroyed
+  cleanup() {
+    // Remove fullscreen change listener
+    if (this.fullscreenChangeHandler) {
+      document.removeEventListener('fullscreenchange', this.fullscreenChangeHandler);
+      this.fullscreenChangeHandler = null;
+    }
+    
+    // Remove orientation callback from global manager
+    if (this.orientationCallback) {
+      globalOrientationManager.removeListener(this.orientationCallback);
+      this.orientationCallback = null;
+    }
+    
+    // Clear button references
+    this.fullscreenButton = null;
+    this.landscapeButton = null;
   }
 
   showTestAdPopup() {
@@ -1406,20 +1809,31 @@ class SettingsScene extends Phaser.Scene {
       }
     });
   }
+
+  // Called when the scene is shut down
+  shutdown() {
+    this.cleanup();
+  }
 }
 
 // ============================================================================
 // STATISTICS SCENE
 // ============================================================================
-// Displays comprehensive game statistics in a table format
-// Shows user information, gameplay stats, and ad statistics
-// Features animated table rows and professional styling
+// Comprehensive game analytics and statistics display
+// Features:
+// - User profile information and preferences
+// - Gameplay statistics (games played, high score, etc.)
+// - Ad engagement metrics and frequency tracking
+// - Professional table layout with alternating row colors
+// - Animated entrance effects and modern styling
+// - Real-time data from localStorage
+// - Responsive design with proper spacing
 // ============================================================================
 
 class StatisticsScene extends Phaser.Scene {
   /**
    * Constructor for the statistics scene
-   * Sets up the scene name for navigation
+   * Sets up the scene name for navigation between scenes
    */
   constructor() {
     super('StatisticsScene');
@@ -1427,7 +1841,8 @@ class StatisticsScene extends Phaser.Scene {
 
   /**
    * Main create method called when the scene starts
-   * Initializes all visual elements in the correct order
+   * Initializes all visual elements in the correct order for proper layering
+   * Background → Clouds → Title → Statistics Table → Back Button
    */
   create() {
     this.createBackground();        // Create the sky blue background
@@ -1770,18 +2185,38 @@ class StatisticsScene extends Phaser.Scene {
 // ============================================================================
 // LEADERBOARD SCENE
 // ============================================================================
+// High score leaderboard with pagination and ranking system
+// Features:
+// - Top 10 high scores with persistent storage
+// - Medal icons for top 3 positions (🥇🥈🥉)
+// - Pagination system (6 entries per page)
+// - Centered table layout with proper column alignment
+// - Player name, score, and level information
+// - Navigation controls with visual feedback
+// - Responsive design with proper spacing
+// - Animated entrance effects
+// ============================================================================
 
 class LeaderboardScene extends Phaser.Scene {
+  /**
+   * Constructor for the leaderboard scene
+   * Sets up the scene name for navigation between scenes
+   */
   constructor() {
     super('LeaderboardScene');
   }
 
+  /**
+   * Main create method called when the scene starts
+   * Initializes all visual elements in the correct order for proper layering
+   * Background → Clouds → Title → Leaderboard Table → Pagination → Back Button
+   */
   create() {
-    this.createBackground();
-    globalCloudManager.start(this);
-    this.createTitle();
-    this.createLeaderboardEntries();
-    this.createBackButton();
+    this.createBackground();        // Create the sky blue background
+    globalCloudManager.start(this); // Start animated cloud system
+    this.createTitle();             // Create animated title and subtitle
+    this.createLeaderboardEntries(); // Create the leaderboard table
+    this.createBackButton();        // Create navigation back button
   }
 
   createBackground() {
@@ -1854,43 +2289,17 @@ class LeaderboardScene extends Phaser.Scene {
   }
 
   createLeaderboardEntries() {
-    const leaderboard = this.getLeaderboard();
-    let yPos = 220;
+    // Pagination settings
+    this.itemsPerPage = 6;
+    this.currentPage = 0;
+    this.leaderboard = this.getLeaderboard();
+    this.totalPages = Math.ceil(this.leaderboard.length / this.itemsPerPage);
 
-    // Simple header row - moved down to avoid overlap with title
-    this.add.text(150, 150, 'RANK', {
-      fontSize: '20px',
-      fill: '#000',
-      fontFamily: 'Arial',
-      fontStyle: 'bold'
-    }).setOrigin(0.5);
-
-    this.add.text(280, 150, 'PLAYER', {
-      fontSize: '20px',
-      fill: '#000',
-      fontFamily: 'Arial',
-      fontStyle: 'bold'
-    }).setOrigin(0.5);
-
-    this.add.text(450, 150, 'SCORE', {
-      fontSize: '20px',
-      fill: '#000',
-      fontFamily: 'Arial',
-      fontStyle: 'bold'
-    }).setOrigin(0.5);
-
-    this.add.text(580, 150, 'LEVEL', {
-      fontSize: '20px',
-      fill: '#000',
-      fontFamily: 'Arial',
-      fontStyle: 'bold'
-    }).setOrigin(0.5);
-
-    // Simple separator line - positioned below header
-    this.add.line(400, 165, 100, 0, 700, 0, 0x000000, 1).setOrigin(0.5);
-
+    // Create header
+    this.createLeaderboardHeader();
+    
     // Show message if no scores
-    if (leaderboard.length === 0) {
+    if (this.leaderboard.length === 0) {
       this.add.text(GAME_CONFIG.WIDTH / 2, 280, 'No scores yet!\nPlay the game to set a record!', {
         fontSize: '24px',
         fill: '#666',
@@ -1900,44 +2309,312 @@ class LeaderboardScene extends Phaser.Scene {
       return;
     }
 
-    // Adjust starting position for scores to be between header and button
-    yPos = 200; // Start scores below the separator line with more spacing
+    // Create pagination controls
+    this.createPaginationControls();
+    
+    // Display first page
+    this.displayCurrentPage();
+  }
 
-    leaderboard.forEach((entry, index) => {
-      const rank = index + 1;
+  createLeaderboardHeader() {
+    // Calculate centered positions
+    const tableWidth = 600;
+    const tableStartX = (GAME_CONFIG.WIDTH - tableWidth) / 2;
+    const rankX = tableStartX + 50;
+    const playerX = tableStartX + 200;
+    const scoreX = tableStartX + 350;
+    const levelX = tableStartX + 500;
+
+    // Header row
+    this.add.text(rankX, 150, 'RANK', {
+      fontSize: '20px',
+      fill: '#000',
+      fontFamily: 'Arial',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+
+    this.add.text(playerX, 150, 'PLAYER', {
+      fontSize: '20px',
+      fill: '#000',
+      fontFamily: 'Arial',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+
+    this.add.text(scoreX, 150, 'SCORE', {
+      fontSize: '20px',
+      fill: '#000',
+      fontFamily: 'Arial',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+
+    this.add.text(levelX, 150, 'LEVEL', {
+      fontSize: '20px',
+      fill: '#000',
+      fontFamily: 'Arial',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+
+    // Separator line - centered with table
+    this.add.line(tableStartX + tableWidth / 2, 165, 0, 0, tableWidth, 0, 0x000000, 1).setOrigin(0.5);
+
+    // Store column positions for use in displayCurrentPage
+    this.columnPositions = {
+      rank: rankX,
+      player: playerX,
+      score: scoreX,
+      level: levelX
+    };
+  }
+
+  createPaginationControls() {
+    const buttonStyle = {
+      fontSize: '16px',
+      fill: '#ffffff',
+      fontFamily: 'Arial',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 2,
+      backgroundColor: '#2196F3',
+      padding: { x: 15, y: 8 },
+      borderRadius: 6
+    };
+
+    const buttonHoverStyle = {
+      ...buttonStyle,
+      backgroundColor: '#1976D2',
+      fill: '#ffff00'
+    };
+
+    // Calculate centered positions for pagination controls
+    const tableWidth = 600;
+    const tableStartX = (GAME_CONFIG.WIDTH - tableWidth) / 2;
+    const paginationY = 470;
+    const buttonGap = 120; // Gap between buttons and page info
+
+    // Previous button - left side
+    this.prevButton = this.add.text(tableStartX + 100, paginationY, '← PREV', buttonStyle)
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true })
+      .setDepth(10);
+
+    // Next button - right side
+    this.nextButton = this.add.text(tableStartX + tableWidth - 100, paginationY, 'NEXT →', buttonStyle)
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true })
+      .setDepth(10);
+
+    // Page info - center
+    this.pageInfo = this.add.text(tableStartX + tableWidth / 2, paginationY, `Page ${this.currentPage + 1} of ${this.totalPages}`, {
+      fontSize: '16px',
+      fill: '#000',
+      fontFamily: 'Arial',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+
+    // Button interactions
+    this.prevButton.on('pointerover', () => {
+      // Only apply hover effect if button is enabled
+      if (this.currentPage > 0) {
+        this.tweens.add({
+          targets: this.prevButton,
+          scaleX: 1.05,
+          scaleY: 1.05,
+          duration: 150,
+          ease: 'Power2'
+        });
+        this.prevButton.setStyle(buttonHoverStyle);
+      }
+    });
+
+    this.prevButton.on('pointerout', () => {
+      // Only apply hover effect if button is enabled
+      if (this.currentPage > 0) {
+        this.tweens.add({
+          targets: this.prevButton,
+          scaleX: 1,
+          scaleY: 1,
+          duration: 150,
+          ease: 'Power2'
+        });
+        this.prevButton.setStyle(buttonStyle);
+      }
+    });
+
+    this.prevButton.on('pointerdown', () => {
+      if (this.currentPage > 0) {
+        this.currentPage--;
+        this.displayCurrentPage();
+        this.updatePaginationControls();
+      }
+    });
+
+    this.nextButton.on('pointerover', () => {
+      // Only apply hover effect if button is enabled
+      if (this.currentPage < this.totalPages - 1) {
+        this.tweens.add({
+          targets: this.nextButton,
+          scaleX: 1.05,
+          scaleY: 1.05,
+          duration: 150,
+          ease: 'Power2'
+        });
+        this.nextButton.setStyle(buttonHoverStyle);
+      }
+    });
+
+    this.nextButton.on('pointerout', () => {
+      // Only apply hover effect if button is enabled
+      if (this.currentPage < this.totalPages - 1) {
+        this.tweens.add({
+          targets: this.nextButton,
+          scaleX: 1,
+          scaleY: 1,
+          duration: 150,
+          ease: 'Power2'
+        });
+        this.nextButton.setStyle(buttonStyle);
+      }
+    });
+
+    this.nextButton.on('pointerdown', () => {
+      if (this.currentPage < this.totalPages - 1) {
+        this.currentPage++;
+        this.displayCurrentPage();
+        this.updatePaginationControls();
+      }
+    });
+
+    // Update initial button states
+    this.updatePaginationControls();
+  }
+
+  displayCurrentPage() {
+    // Clear previous entries
+    if (this.currentEntries) {
+      this.currentEntries.forEach(entry => entry.destroy());
+    }
+    this.currentEntries = [];
+
+    const startIndex = this.currentPage * this.itemsPerPage;
+    const endIndex = Math.min(startIndex + this.itemsPerPage, this.leaderboard.length);
+    const pageEntries = this.leaderboard.slice(startIndex, endIndex);
+
+    let yPos = 200;
+
+    pageEntries.forEach((entry, index) => {
+      const globalIndex = startIndex + index;
+      const rank = globalIndex + 1;
       const medal = this.getMedalForRank(rank);
       
-      // Simple rank/medal
-      this.add.text(150, yPos, medal, {
+      const entries = [];
+
+      // Rank/medal
+      entries.push(this.add.text(this.columnPositions.rank, yPos, medal, {
         fontSize: '24px',
         fill: '#000',
         fontFamily: 'Arial'
-      }).setOrigin(0.5);
+      }).setOrigin(0.5));
 
       // Player name
-      this.add.text(280, yPos, `${entry.username || 'Anonymous'}`, {
+      entries.push(this.add.text(this.columnPositions.player, yPos, `${entry.username || 'Anonymous'}`, {
         fontSize: '18px',
         fill: '#000',
         fontFamily: 'Arial',
         fontStyle: 'bold'
-      }).setOrigin(0.5);
+      }).setOrigin(0.5));
 
-      // Simple score
-      this.add.text(450, yPos, `${entry.score}`, {
+      // Score
+      entries.push(this.add.text(this.columnPositions.score, yPos, `${entry.score}`, {
         fontSize: '24px',
         fill: '#000',
         fontFamily: 'Arial'
-      }).setOrigin(0.5);
+      }).setOrigin(0.5));
 
-      // Simple level
-      this.add.text(580, yPos, `${entry.level || 1}`, {
+      // Level
+      entries.push(this.add.text(this.columnPositions.level, yPos, `${entry.level || 1}`, {
         fontSize: '24px',
         fill: '#000',
         fontFamily: 'Arial'
-      }).setOrigin(0.5);
+      }).setOrigin(0.5));
 
+      this.currentEntries.push(...entries);
       yPos += 40;
     });
+  }
+
+  updatePaginationControls() {
+    // Update page info
+    this.pageInfo.setText(`Page ${this.currentPage + 1} of ${this.totalPages}`);
+
+    // Check if buttons should be disabled
+    const isFirstPage = this.currentPage === 0;
+    const isLastPage = this.currentPage === this.totalPages - 1;
+
+    // Update previous button state
+    if (isFirstPage) {
+      // Disabled state - dimmed appearance
+      this.prevButton.setStyle({
+        fontSize: '16px',
+        fill: '#999999',
+        fontFamily: 'Arial',
+        fontStyle: 'bold',
+        stroke: '#666666',
+        strokeThickness: 1,
+        backgroundColor: '#cccccc',
+        padding: { x: 15, y: 8 },
+        borderRadius: 6
+      });
+      this.prevButton.setInteractive(false);
+      this.prevButton.setAlpha(0.5); // Make it more obviously disabled
+    } else {
+      // Enabled state - normal appearance
+      this.prevButton.setStyle({
+        fontSize: '16px',
+        fill: '#ffffff',
+        fontFamily: 'Arial',
+        fontStyle: 'bold',
+        stroke: '#000000',
+        strokeThickness: 2,
+        backgroundColor: '#2196F3',
+        padding: { x: 15, y: 8 },
+        borderRadius: 6
+      });
+      this.prevButton.setInteractive({ useHandCursor: true });
+      this.prevButton.setAlpha(1); // Full opacity when enabled
+    }
+
+    // Update next button state
+    if (isLastPage) {
+      // Disabled state - dimmed appearance
+      this.nextButton.setStyle({
+        fontSize: '16px',
+        fill: '#999999',
+        fontFamily: 'Arial',
+        fontStyle: 'bold',
+        stroke: '#666666',
+        strokeThickness: 1,
+        backgroundColor: '#cccccc',
+        padding: { x: 15, y: 8 },
+        borderRadius: 6
+      });
+      this.nextButton.setInteractive(false);
+      this.nextButton.setAlpha(0.5); // Make it more obviously disabled
+    } else {
+      // Enabled state - normal appearance
+      this.nextButton.setStyle({
+        fontSize: '16px',
+        fill: '#ffffff',
+        fontFamily: 'Arial',
+        fontStyle: 'bold',
+        stroke: '#000000',
+        strokeThickness: 2,
+        backgroundColor: '#2196F3',
+        padding: { x: 15, y: 8 },
+        borderRadius: 6
+      });
+      this.nextButton.setInteractive({ useHandCursor: true });
+      this.nextButton.setAlpha(1); // Full opacity when enabled
+    }
   }
 
   createBackButton() {
@@ -2033,41 +2710,49 @@ class LeaderboardScene extends Phaser.Scene {
 }
 
 // ============================================================================
-// ============================================================================
 // MAIN GAME SCENE
 // ============================================================================
 // The core gameplay scene where the endless runner game takes place
-// Handles player movement, obstacle spawning, scoring, and game progression
-// Features physics, collision detection, power-ups, and ad integration
+// Features:
+// - Player movement with jumping mechanics and physics
+// - Procedurally generated obstacles and collectible coins
+// - Dynamic difficulty progression with speed increases
+// - Power-up system with revive functionality
+// - Real-time scoring and level progression
+// - Ad integration with statistics tracking
+// - Pause/resume functionality
+// - Game over handling with restart options
+// - Programmatically generated textures and animations
 // ============================================================================
 
 class GameScene extends Phaser.Scene {
-    /**
-     * Constructor for the game scene
-     * Sets up the scene name for navigation
-     */
-    constructor() {
-      super('GameScene');
-    }
-  
-    /**
-     * Preload method called before create
-     * No external assets needed - all textures are generated programmatically
-     */
-    preload() {
-      // Using generated textures, no external assets to preload
-    }
-  
-    /**
-     * Main create method called when the scene starts
-     * Initializes all game systems in the correct order
-     */
-    create() {
-      this.initializeGameState();  // Set up game variables and state
-      this.createTextures();       // Generate all game textures
-      this.createGameObjects();    // Create player, ground, and object groups
-      this.setupPhysics();         // Configure physics and collision detection
-      this.setupUI();              // Create score, level, and button displays
+  /**
+   * Constructor for the game scene
+   * Sets up the scene name for navigation between scenes
+   */
+  constructor() {
+    super('GameScene');
+  }
+
+  /**
+   * Preload method called before create
+   * No external assets needed - all textures are generated programmatically
+   */
+  preload() {
+    // Using generated textures, no external assets to preload
+  }
+
+  /**
+   * Main create method called when the scene starts
+   * Initializes all game systems in the correct order for proper functionality
+   * State → Textures → Objects → Physics → UI → Input → Spawning
+   */
+  create() {
+    this.initializeGameState();  // Set up game variables and state
+    this.createTextures();       // Generate all game textures
+    this.createGameObjects();    // Create player, ground, and object groups
+    this.setupPhysics();         // Configure physics and collision detection
+    this.setupUI();              // Create score, level, and button displays
       this.setupInputHandlers();   // Set up keyboard and touch controls
       this.setupSpawnTimer();      // Start obstacle and coin spawning system
       this.createBottomUI();       // Create bottom UI panel with buttons
@@ -2919,19 +3604,26 @@ class GameScene extends Phaser.Scene {
 // ============================================================================
 // GLOBAL CLOUD MANAGER
 // ============================================================================
-// Manages animated cloud backgrounds across all scenes
-// Creates parallax scrolling clouds for visual appeal
-// Handles cloud spawning, movement, and cleanup
+// Global cloud background system for animated atmosphere
+// Features:
+// - Programmatically generated cloud textures (small, medium, large)
+// - Scene-specific cloud behavior and positioning
+// - Dynamic spawning with configurable timing
+// - Smooth movement animations across screen
+// - Pause/resume functionality for game states
+// - Memory-efficient cleanup and management
+// - Different opacity and speed settings per scene
 // ============================================================================
 
 class CloudManager {
   /**
    * Constructor for the cloud manager
-   * Initializes cloud tracking and active state
+   * Initializes cloud system state and texture storage
    */
   constructor() {
-    this.clouds = [];        // Array to store all active cloud sprites and tweens
-    this.isActive = false;   // Flag to track if cloud system is running
+    this.clouds = [];           // Array to store active cloud objects
+    this.isActive = false;      // Flag to track if cloud system is running
+    this.spawnTimer = null;     // Timer for periodic cloud spawning
   }
 
   start(scene) {
@@ -3017,7 +3709,7 @@ class CloudManager {
     const cloudTypes = ['cloud_small', 'cloud_medium', 'cloud_large'];
     const cloudType = Phaser.Utils.Array.GetRandom(cloudTypes);
     
-    console.log('Spawning cloud:', cloudType, 'in scene:', this.scene.constructor.name);
+    // console.log('Spawning cloud:', cloudType, 'in scene:', this.scene.constructor.name);
     
     // Random position on the right side of screen
     const x = GAME_CONFIG.WIDTH + Phaser.Math.Between(50, 150);
@@ -3091,6 +3783,78 @@ class CloudManager {
 const globalCloudManager = new CloudManager();
 
 // ============================================================================
+// GLOBAL ORIENTATION MANAGER
+// ============================================================================
+// Global orientation detection and management system
+// Features:
+// - Real-time orientation change detection
+// - Persistent orientation preference storage
+// - Cross-scene orientation state management
+// - Event listener system for orientation updates
+// - Automatic localStorage synchronization
+// - Mobile device orientation optimization
+// ============================================================================
+
+class OrientationManager {
+  /**
+   * Constructor for the orientation manager
+   * Initializes orientation tracking and global listeners
+   */
+  constructor() {
+    this.currentOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+    this.listeners = [];
+    this.setupGlobalListener();
+  }
+
+  setupGlobalListener() {
+    // Global resize listener that works across all scenes
+    window.addEventListener('resize', () => {
+      const newOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+      
+      // Only update if orientation actually changed
+      if (newOrientation !== this.currentOrientation) {
+        this.currentOrientation = newOrientation;
+        
+        // Store in localStorage
+        localStorage.setItem('preferredOrientation', newOrientation);
+        console.log(`Global orientation changed to: ${newOrientation}`);
+        
+        // Notify all listeners
+        this.listeners.forEach(callback => {
+          try {
+            callback(newOrientation);
+          } catch (error) {
+            console.log('Error in orientation listener:', error);
+          }
+        });
+      }
+    });
+  }
+
+  addListener(callback) {
+    this.listeners.push(callback);
+  }
+
+  removeListener(callback) {
+    const index = this.listeners.indexOf(callback);
+    if (index > -1) {
+      this.listeners.splice(index, 1);
+    }
+  }
+
+  getCurrentOrientation() {
+    return this.currentOrientation;
+  }
+
+  getStoredOrientation() {
+    return localStorage.getItem('preferredOrientation') || this.currentOrientation;
+  }
+}
+
+// Global orientation manager instance
+const globalOrientationManager = new OrientationManager();
+
+// ============================================================================
 // LOCAL STORAGE INITIALIZATION
 // ============================================================================
 // Ensures all required localStorage values are properly initialized
@@ -3117,6 +3881,10 @@ function initializeLocalStorage() {
     localStorage.setItem('username', 'Anonymous');             // Default username
     localStorage.setItem('leaderboard', '[]');                 // Empty leaderboard array
     
+    // Set default orientation based on current viewport
+    const isLandscape = window.innerWidth > window.innerHeight;
+    localStorage.setItem('preferredOrientation', isLandscape ? 'landscape' : 'portrait');
+    
     // Mark game as initialized
     localStorage.setItem('gameInitialized', 'true');
     
@@ -3132,6 +3900,12 @@ function initializeLocalStorage() {
       'username': 'Anonymous',
       'leaderboard': '[]'
     };
+    
+    // Add orientation preference if it doesn't exist
+    if (!localStorage.getItem('preferredOrientation')) {
+      const isLandscape = window.innerWidth > window.innerHeight;
+      localStorage.setItem('preferredOrientation', isLandscape ? 'landscape' : 'portrait');
+    }
     
     // Check and set any missing values
     Object.entries(defaults).forEach(([key, defaultValue]) => {
@@ -3151,16 +3925,22 @@ initializeLocalStorage();
 // ============================================================================
 // Phaser game configuration object
 // Defines renderer, physics, scenes, and scaling behavior
+// Optimized for cross-platform compatibility and performance
 // ============================================================================
-  
-  const config = {
+
+const config = {
+  // ========================================================================
+  // RENDERER CONFIGURATION
+  // ========================================================================
   type: Phaser.AUTO,                    // Auto-detect best renderer (WebGL or Canvas)
   width: GAME_CONFIG.WIDTH,             // Game width from configuration
   height: GAME_CONFIG.HEIGHT,           // Game height from configuration
   backgroundColor: GAME_CONFIG.BACKGROUND_COLOR,  // Background color from configuration
   
-  // Physics system configuration
-    physics: {
+  // ========================================================================
+  // PHYSICS SYSTEM CONFIGURATION
+  // ========================================================================
+  physics: {
     default: 'arcade',                  // Use Arcade Physics (lightweight 2D physics)
     arcade: { 
       gravity: { y: GAME_CONFIG.GRAVITY },  // Apply gravity from configuration
@@ -3168,22 +3948,34 @@ initializeLocalStorage();
     }
   },
   
-  // Scene management - order determines loading sequence
+  // ========================================================================
+  // SCENE MANAGEMENT
+  // ========================================================================
+  // Order determines loading sequence and scene availability
   scene: [
-    MainMenuScene,      // First scene (main menu)
-    LeaderboardScene,   // Leaderboard display
+    MainMenuScene,      // First scene (main menu) - entry point
+    LeaderboardScene,   // Leaderboard display and management
     SettingsScene,      // Game settings and configuration
-    StatisticsScene,    // Statistics and analytics
-    GameScene           // Main gameplay scene
+    StatisticsScene,    // Statistics and analytics display
+    GameScene           // Main gameplay scene - core game logic
   ],
   
-  // Scaling and display configuration
-    scale: {
+  // ========================================================================
+  // SCALING AND DISPLAY CONFIGURATION
+  // ========================================================================
+  scale: {
     mode: Phaser.Scale.FIT,             // Scale to fit screen while maintaining aspect ratio
     autoCenter: Phaser.Scale.CENTER_BOTH, // Center the game on screen
-    }
-  };
-  
-// Initialize the Phaser game with the configuration
-  new Phaser.Game(config);
+    orientation: Phaser.Scale.LANDSCAPE,  // Default to landscape orientation
+  }
+};
+
+// ============================================================================
+// GAME INITIALIZATION
+// ============================================================================
+// Create and start the Phaser game instance
+// This initializes all systems and loads the first scene (MainMenuScene)
+// ============================================================================
+
+new Phaser.Game(config);
   

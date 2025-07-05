@@ -1,6 +1,10 @@
-# 🏃‍♂️ Endless Runner
+# 🏃‍♂️ Endless Runner - Phaser 3 Game
 
-A fun endless runner game built with Phaser 3. Jump over obstacles, collect coins, and try to beat your high score!
+A complete endless runner game built with Phaser 3 featuring modern UI/UX, mobile support, and comprehensive game systems.
+
+## 🎮 Game Overview
+
+Endless Runner is a polished HTML5 game where you jump over obstacles, collect coins, and compete for high scores. Features include persistent scoring, leaderboards, settings management, and mobile optimization.
 
 ## 🎮 How to Play
 
@@ -17,18 +21,13 @@ A fun endless runner game built with Phaser 3. Jump over obstacles, collect coin
 3. Find pink diamond coins for revive power-up
 4. Try to achieve the highest score!
 
-## ✨ Features
+## ✨ Key Features
 
-- **Endless Running**: Progressive difficulty with increasing speed
-- **Double Jump**: Perform a second jump while in the air
-- **Power-ups**: Revive ability for second chances
-- **Leaderboard**: Top 10 high scores with player names and medals 🥇🥈🥉
-- **Username System**: Set your username to appear in the leaderboard
-- **Settings Menu**: Customize your game experience
-- **Ad System**: Optional ads every 3 game plays with statistics and test feature
-- **Animated Clouds**: Beautiful background animations
-- **Score Persistence**: Your scores and settings are saved automatically
-- **Mobile Friendly**: Works on phones and tablets
+- **🎯 Core Gameplay**: Endless running with progressive difficulty, double jump mechanics, and power-up system
+- **🏆 Competition**: Leaderboard with medal rankings, username system, and score persistence
+- **🎨 Visual**: Animated cloud system, programmatic graphics, and modern UI design
+- **⚙️ Settings**: Display controls, ad preferences, and mobile optimization
+- **📱 Mobile**: Touch controls, orientation support, and responsive design
 
 ## 🚀 Quick Start
 
@@ -42,6 +41,19 @@ A fun endless runner game built with Phaser 3. Jump over obstacles, collect coin
 python -m http.server 8000
 
 # Then visit: http://localhost:8000
+```
+
+## 🏗️ Project Structure
+
+```
+endless_runner_phaser_demo/
+├── game.js              # Main game logic and all scenes
+├── index.html           # HTML entry point
+├── README.md            # This file
+├── LICENSE              # Project license
+└── manual/              # Documentation folder
+    ├── user-manual.md   # Complete user guide
+    └── developer-manual.md # Developer documentation
 ```
 
 ## ⚙️ Settings
@@ -64,17 +76,24 @@ python -m http.server 8000
 - Clear all leaderboard scores and reset high score
 - Complete data reset option for fresh start
 
-## 🛠️ Built With
+## 🛠️ Technical Stack
 
-- **Phaser 3**: HTML5 game framework
-- **JavaScript**: Modern ES6+ features
-- **localStorage**: Score and settings persistence
-- **Canvas UI**: Custom popup dialogs and input systems
+- **Phaser 3**: HTML5 game framework for 2D games
+- **JavaScript ES6+**: Modern JavaScript features
+- **localStorage API**: Client-side data persistence
+- **Canvas Graphics**: Programmatic texture generation
+- **CSS3**: Modern styling and animations
+- **HTML5**: Semantic markup and accessibility
 
 ## 🌐 Play Online
 
 - **Live Demo**: [Play Now](https://enablsoft.github.io/endless_runner_phaser_demo/)
 - **Original Demo**: [Phaser Sandbox](https://phaser.io/sandbox/F7W9ewti)
+
+## 📚 Documentation
+
+- **[User Manual](manual/user-manual.md)**: Complete guide for players
+- **[Developer Manual](manual/developer-manual.md)**: Technical documentation for developers
 
 ## 📱 Mobile Support
 
@@ -83,22 +102,73 @@ Works great on mobile devices with touch controls and responsive design!
 ## 🎯 Game Features
 
 ### Scoring System
-- **Coins**: 10 points each
-- **Level Progression**: Speed increases with score
-- **High Score Tracking**: Persistent across sessions
-- **Leaderboard**: Top 10 scores with player names
+- **Coin Collection**: 10 points per coin
+- **Level Bonuses**: 100 points per level reached
+- **High Score Tracking**: Persistent across browser sessions
+- **Leaderboard Rankings**: Top 10 with medal system
 
-### Power-ups
-- **Revive**: Pink diamond coins grant extra life
-- **Double Jump**: Enhanced mobility
-- **Progressive Difficulty**: Game gets faster over time
+### Power-up System
+- **Revive Coins**: Pink diamonds grant extra life
+- **Double Jump**: Enhanced aerial mobility
+- **Progressive Difficulty**: Speed increases with score
 
-### UI Features
-- **Main Menu**: Clean, modern interface
-- **Settings Panel**: Username and ad preferences
-- **Leaderboard**: Sortable high scores
-- **Responsive Design**: Works on all screen sizes
+### UI/UX Features
+- **Main Menu**: Clean navigation with animated elements
+- **Settings Panel**: Comprehensive customization options
+- **Leaderboard**: Paginated display with sorting
+- **Statistics**: Detailed gameplay analytics
+- **Responsive Design**: Adapts to all screen sizes
+
+## 🔧 Configuration
+
+The game uses a centralized configuration system in `game.js`:
+
+```javascript
+const GAME_CONFIG = {
+  // Display settings
+  WIDTH: 800,
+  HEIGHT: 600,
+  
+  // Physics settings
+  GRAVITY: 800,
+  JUMP_VELOCITY: -420,
+  
+  // Game progression
+  INITIAL_SPEED: 150,
+  SPEED_INCREMENT: 0.005,
+  
+  // Scoring
+  SCORE_PER_COIN: 10,
+  SCORE_PER_LEVEL: 100
+};
+```
+
+## 🐛 Known Issues
+
+- Fullscreen mode requires user interaction (browser security)
+- Some mobile browsers may have orientation restrictions
+- Ad system is simulated (no real ad integration)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Phaser Team**: For the excellent game framework
+- **HTML5 Game Devs**: Community support and inspiration
+- **Open Source Community**: For tools and libraries used
 
 ---
 
-**Have fun playing!** 🎮✨
+**Ready to run? Start playing now!** 🎮✨
+
+*Jump, collect, compete, and have fun!*
