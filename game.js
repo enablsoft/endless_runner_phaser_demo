@@ -40,7 +40,7 @@ const GAME_CONFIG = {
   COIN_MAX_Y: 400,               // Maximum Y position for coin spawning
   
   // Game progression settings
-  INITIAL_SPEED: 200,            // Starting speed of obstacles and coins
+  INITIAL_SPEED: 150,            // Starting speed of obstacles and coins (reduced for easier start)
   INITIAL_SPAWN_DELAY: 1500,     // Initial delay between obstacle spawns (ms)
   SPEED_INCREMENT: 0.005,        // How much speed increases per frame
   LEVEL_SPEED_BONUS: 20,         // Speed bonus when leveling up
@@ -124,7 +124,7 @@ class MainMenuScene extends Phaser.Scene {
    * Constructor for the main menu scene
    * Sets up the scene name for navigation
    */
-  constructor() {
+    constructor() {
     super('MainMenuScene');
   }
 
@@ -363,7 +363,7 @@ class MainMenuScene extends Phaser.Scene {
     const startX = (GAME_CONFIG.WIDTH - totalWidth) / 2 + buttonWidth / 2;
     
     // Play Button - left side
-    const playButton = this.add.text(startX, 320, '🎮 PLAY GAME', {
+    const playButton = this.add.text(startX, 280, '🎮 PLAY GAME', {
       fontSize: '26px', // Adjusted font size
       fill: '#ffffff',
       fontFamily: 'Arial',
@@ -383,7 +383,7 @@ class MainMenuScene extends Phaser.Scene {
     }).setOrigin(0.5).setInteractive({ useHandCursor: true }).setDepth(10);
 
     // Leaderboard Button - right side
-    const leaderboardButton = this.add.text(startX + buttonWidth + gap, 320, '🏆 LEADERBOARD', {
+    const leaderboardButton = this.add.text(startX + buttonWidth + gap, 280, '🏆 LEADERBOARD', {
       fontSize: '26px', // Adjusted font size
       fill: '#ffffff',
       fontFamily: 'Arial',
@@ -463,7 +463,7 @@ class MainMenuScene extends Phaser.Scene {
     });
     
     // Settings Button - positioned below the main buttons
-    const settingsButton = this.add.text(GAME_CONFIG.WIDTH / 2, 380, '⚙️ SETTINGS', {
+    const settingsButton = this.add.text(GAME_CONFIG.WIDTH / 2, 340, '⚙️ SETTINGS', {
       fontSize: '24px',
       fill: '#ffffff',
       fontFamily: 'Arial',
@@ -536,14 +536,14 @@ class MainMenuScene extends Phaser.Scene {
     playButton.setAlpha(0);
     leaderboardButton.setAlpha(0);
     settingsButton.setAlpha(0);
-    playButton.setY(300);
-    leaderboardButton.setY(300);
-    settingsButton.setY(360);
+    playButton.setY(260);
+    leaderboardButton.setY(260);
+    settingsButton.setY(320);
     
     this.tweens.add({
       targets: playButton,
       alpha: 1,
-      y: 320,
+      y: 280,
       duration: 800,
       delay: 900,
       ease: 'Back.easeOut'
@@ -552,7 +552,7 @@ class MainMenuScene extends Phaser.Scene {
     this.tweens.add({
       targets: leaderboardButton,
       alpha: 1,
-      y: 320,
+      y: 280,
       duration: 800,
       delay: 1100,
       ease: 'Back.easeOut'
@@ -561,7 +561,7 @@ class MainMenuScene extends Phaser.Scene {
     this.tweens.add({
       targets: settingsButton,
       alpha: 1,
-      y: 380,
+      y: 340,
       duration: 800,
       delay: 1300,
       ease: 'Back.easeOut'
@@ -619,53 +619,6 @@ class MainMenuScene extends Phaser.Scene {
       ease: 'Back.easeOut'
     });
   }
-
-  createClouds() {
-    this.clouds = this.add.group();
-    
-    // Create initial clouds
-    for (let i = 0; i < 4; i++) {
-      this.spawnCloud();
-    }
-
-    // Spawn new clouds periodically
-    this.time.addEvent({
-      delay: 4000,
-      loop: true,
-      callback: () => {
-        this.spawnCloud();
-      }
-    });
-  }
-
-  spawnCloud() {
-    const cloudTypes = ['cloud_small', 'cloud_medium', 'cloud_large'];
-    const cloudType = Phaser.Utils.Array.GetRandom(cloudTypes);
-    
-    // Random position on the right side of screen
-    const x = GAME_CONFIG.WIDTH + Phaser.Math.Between(50, 150);
-    const y = Phaser.Math.Between(50, 200);
-    
-    const cloud = this.add.sprite(x, y, cloudType);
-    cloud.setDepth(1); // Behind UI elements
-    
-    // Random speed based on cloud size (increased speeds)
-    const speeds = { cloud_small: 0.6, cloud_medium: 0.4, cloud_large: 0.25 };
-    const speed = speeds[cloudType];
-    
-    // Animate cloud movement
-    this.tweens.add({
-      targets: cloud,
-      x: -100,
-      duration: 15000 / speed,
-      ease: 'Linear',
-      onComplete: () => {
-        cloud.destroy();
-      }
-    });
-    
-    this.clouds.add(cloud);
-  }
 }
 
 // ============================================================================
@@ -675,9 +628,9 @@ class MainMenuScene extends Phaser.Scene {
 class SettingsScene extends Phaser.Scene {
   constructor() {
     super('SettingsScene');
-  }
-
-  create() {
+    }
+  
+    create() {
     this.createBackground();
     globalCloudManager.start(this);
     this.createTitle();
@@ -2077,53 +2030,6 @@ class LeaderboardScene extends Phaser.Scene {
     const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
     return leaderboard.sort((a, b) => b.score - a.score).slice(0, 10); // Keep top 10 for storage
   }
-
-  createClouds() {
-    this.clouds = this.add.group();
-    
-    // Create initial clouds
-    for (let i = 0; i < 3; i++) {
-      this.spawnCloud();
-    }
-
-    // Spawn new clouds periodically
-    this.time.addEvent({
-      delay: 5000,
-      loop: true,
-      callback: () => {
-        this.spawnCloud();
-      }
-    });
-  }
-
-  spawnCloud() {
-    const cloudTypes = ['cloud_small', 'cloud_medium', 'cloud_large'];
-    const cloudType = Phaser.Utils.Array.GetRandom(cloudTypes);
-    
-    // Random position on the right side of screen
-    const x = GAME_CONFIG.WIDTH + Phaser.Math.Between(50, 150);
-    const y = Phaser.Math.Between(50, 180);
-    
-    const cloud = this.add.sprite(x, y, cloudType);
-    cloud.setDepth(1); // Behind UI elements
-    
-    // Random speed based on cloud size (increased speeds)
-    const speeds = { cloud_small: 0.5, cloud_medium: 0.35, cloud_large: 0.2 };
-    const speed = speeds[cloudType];
-    
-    // Animate cloud movement
-    this.tweens.add({
-      targets: cloud,
-      x: -100,
-      duration: 18000 / speed,
-      ease: 'Linear',
-      onComplete: () => {
-        cloud.destroy();
-      }
-    });
-    
-    this.clouds.add(cloud);
-  }
 }
 
 // ============================================================================
@@ -2170,23 +2076,23 @@ class GameScene extends Phaser.Scene {
   initializeGameState() {
     // Game state variables
     this.score = parseInt(localStorage.getItem('currentScore')) || 0;
-    this.level = 1;
+      this.level = 1;
     this.speed = GAME_CONFIG.INITIAL_SPEED;
     this.spawnDelay = GAME_CONFIG.INITIAL_SPAWN_DELAY;
-    this.canDoubleJump = true;
-    this.gameOver = false;
-    this.isPaused = false;
-    this.gameStarted = false;
-    this.reviveGivenThisLevel = false;
-    this.highScore = localStorage.getItem('highScore') || 0;
+      this.canDoubleJump = true;
+      this.gameOver = false;
+      this.isPaused = false;
+      this.gameStarted = false;
+      this.reviveGivenThisLevel = false;
+      this.highScore = localStorage.getItem('highScore') || 0;
     this.lastSpawnedObstacle = null; // Track the last spawned obstacle for coin placement
-
+  
     // Power-ups system
-    this.powerUps = {
-      revive: false
-    };
-    this.powerUpTimer = null;
-    
+      this.powerUps = {
+        revive: false
+      };
+      this.powerUpTimer = null;
+  
     // Ad system - track game play count and ad views
     this.gamePlayCount = parseInt(localStorage.getItem('gamePlayCount')) || 0;
     this.adViewCount = parseInt(localStorage.getItem('adViewCount')) || 0;
@@ -2197,9 +2103,13 @@ class GameScene extends Phaser.Scene {
       this.ground = this.physics.add.staticGroup();
     this.ground.create(GAME_CONFIG.WIDTH / 2, GAME_CONFIG.GROUND_Y, 'ground');
 
-    // Create player
-    this.player = this.physics.add.sprite(GAME_CONFIG.PLAYER_START_X, GAME_CONFIG.PLAYER_START_Y, 'player');
+    // Create player - adjusted for larger size
+    this.player = this.physics.add.sprite(GAME_CONFIG.PLAYER_START_X, GAME_CONFIG.PLAYER_START_Y - 10, 'player');
     this.player.setCollideWorldBounds(true).setBounce(GAME_CONFIG.PLAYER_BOUNCE);
+    
+    // Set custom collision bounds for better collision detection
+    this.player.body.setSize(32, 40); // Smaller collision box than visual size
+    this.player.body.setOffset(6, 8);  // Center the collision box
 
     // Create object groups
       this.obstacles = this.physics.add.group();
@@ -2397,8 +2307,8 @@ class GameScene extends Phaser.Scene {
     if (this.player.body.touching.down) this.canDoubleJump = true;
     }
   
-      startGame() {
-    this.gameStarted = true;
+    startGame() {
+      this.gameStarted = true;
     this.score = 0;
     localStorage.setItem('currentScore', 0);
     this.scoreText.setText('Score: 0');
@@ -2419,18 +2329,18 @@ class GameScene extends Phaser.Scene {
   
   performStartGame() {
     this.updateButtonVisibility();
-    this.gameOverText.setAlpha(0);
-    this.physics.resume();
-    this.spawnTimer.paused = false;
-    this.pauseText.setText('');
-    this.powerUpText.setText('Power Up: None');
-    this.powerUps.revive = false;
+      this.gameOverText.setAlpha(0);
+      this.physics.resume();
+      this.spawnTimer.paused = false;
+      this.pauseText.setText('');
+      this.powerUpText.setText('Power Up: None');
+      this.powerUps.revive = false;
   
     if (this.powerUpTimer) {
-      this.powerUpTimer.remove();
-      this.powerUpTimer = null;
+        this.powerUpTimer.remove();
+        this.powerUpTimer = null;
+      }
     }
-  }
   
     jump() {
       if (this.player.body.touching.down) {
@@ -2512,40 +2422,40 @@ class GameScene extends Phaser.Scene {
       this.spawnTimer.paused = false;
     }
   
-      spawnObstacle() {
-    const shapes = ['obstacle_rect', 'obstacle_star', 'obstacle_triangle', 'obstacle_circle'];
-    const shape = Phaser.Utils.Array.GetRandom(shapes);
+    spawnObstacle() {
+      const shapes = ['obstacle_rect', 'obstacle_star', 'obstacle_triangle', 'obstacle_circle'];
+      const shape = Phaser.Utils.Array.GetRandom(shapes);
     const obstacle = this.obstacles.create(GAME_CONFIG.OBSTACLE_SPAWN_X, GAME_CONFIG.OBSTACLE_Y, shape);
-
+  
     obstacle.setImmovable(true);
     obstacle.body.allowGravity = false;
-
+  
     // Add rotation animation for certain shapes
-    if (shape === 'obstacle_star' || shape === 'obstacle_triangle') {
+      if (shape === 'obstacle_star' || shape === 'obstacle_triangle') {
       obstacle.rotationSpeed = Phaser.Math.FloatBetween(0.02, 0.05);
-    } else {
+      } else {
       obstacle.rotationSpeed = 0;
-    }
-
+      }
+  
     // Add pulsating animation for triangle
-    if (shape === 'obstacle_triangle') {
+      if (shape === 'obstacle_triangle') {
       obstacle.pulseTween = this.tweens.add({
         targets: obstacle,
-        scaleX: 1.1,
-        scaleY: 1.1,
-        yoyo: true,
-        repeat: -1,
-        duration: 800
-      });
-    }
-
+          scaleX: 1.1,
+          scaleY: 1.1,
+          yoyo: true,
+          repeat: -1,
+          duration: 800
+        });
+      }
+  
     obstacle.body.setVelocityX(-this.speed);
     
     // Store reference to this obstacle for coin placement
     this.lastSpawnedObstacle = obstacle;
-  }
+    }
   
-      spawnCoin() {
+    spawnCoin() {
     // Place coin on top of the last spawned obstacle
     let coinY;
     
@@ -2571,29 +2481,29 @@ class GameScene extends Phaser.Scene {
     // Spawn revive coin with 20% chance if not given this level
     if (!this.reviveGivenThisLevel && Phaser.Math.Between(1, 100) <= GAME_CONFIG.REVIVE_CHANCE) {
       const coin = this.coins.create(GAME_CONFIG.COIN_SPAWN_X, coinY, 'coin_revive');
+        coin.setImmovable(true);
+        coin.body.allowGravity = false;
+        coin.body.setVelocityX(-this.speed);
+  
+        this.reviveGivenThisLevel = true;
+  
+      // Add bouncing animation
+        coin.bounceTween = this.tweens.add({
+          targets: coin,
+        y: coinY - 10,
+          yoyo: true,
+          duration: 400,
+          repeat: -1,
+          ease: 'Sine.easeInOut'
+        });
+        return;
+      }
+  
+    // Spawn regular coin
+    const coin = this.coins.create(GAME_CONFIG.COIN_SPAWN_X, coinY, 'coin');
       coin.setImmovable(true);
       coin.body.allowGravity = false;
       coin.body.setVelocityX(-this.speed);
-
-      this.reviveGivenThisLevel = true;
-
-      // Add bouncing animation
-      coin.bounceTween = this.tweens.add({
-        targets: coin,
-        y: coinY - 10,
-        yoyo: true,
-        duration: 400,
-        repeat: -1,
-        ease: 'Sine.easeInOut'
-      });
-      return;
-    }
-
-    // Spawn regular coin
-    const coin = this.coins.create(GAME_CONFIG.COIN_SPAWN_X, coinY, 'coin');
-    coin.setImmovable(true);
-    coin.body.allowGravity = false;
-    coin.body.setVelocityX(-this.speed);
     
     // Add subtle floating animation for regular coins
     coin.floatTween = this.tweens.add({
@@ -2604,7 +2514,7 @@ class GameScene extends Phaser.Scene {
       repeat: -1,
       ease: 'Sine.easeInOut'
     });
-  }
+    }
   
     togglePause() {
       this.isPaused = !this.isPaused;
@@ -2622,7 +2532,7 @@ class GameScene extends Phaser.Scene {
       }
     }
   
-      restartGame() {
+    restartGame() {
     // Increment game play count and check for ad
     this.gamePlayCount++;
     localStorage.setItem('gamePlayCount', this.gamePlayCount);
@@ -2638,43 +2548,43 @@ class GameScene extends Phaser.Scene {
   }
   
   performRestart() {
-    this.gameOver = false;
-    this.score = 0;
+      this.gameOver = false;
+      this.score = 0;
     localStorage.setItem('currentScore', 0);
-    this.level = 1;
+      this.level = 1;
     this.speed = GAME_CONFIG.INITIAL_SPEED;
     this.spawnDelay = GAME_CONFIG.INITIAL_SPAWN_DELAY;
-    this.canDoubleJump = true;
+      this.canDoubleJump = true;
     this.lastSpawnedObstacle = null; // Reset obstacle tracking
-
+  
     // Reset player
-    this.player.clearTint();
+      this.player.clearTint();
     this.player.setPosition(GAME_CONFIG.PLAYER_START_X, GAME_CONFIG.PLAYER_START_Y);
-    this.player.setVelocity(0, 0);
-
+      this.player.setVelocity(0, 0);
+  
     // Clear objects
-    this.obstacles.clear(true, true);
-    this.coins.clear(true, true);
-
+      this.obstacles.clear(true, true);
+      this.coins.clear(true, true);
+  
     // Update UI
-    this.scoreText.setText('Score: 0');
-    this.levelText.setText('Level: 1');
-    this.pauseText.setText('');
-    this.gameOverText.setAlpha(0);
-    this.powerUpText.setText('Power Up: None');
-
+      this.scoreText.setText('Score: 0');
+      this.levelText.setText('Level: 1');
+      this.pauseText.setText('');
+      this.gameOverText.setAlpha(0);
+      this.powerUpText.setText('Power Up: None');
+  
     this.updateButtonVisibility();
-    this.powerUps.revive = false;
+      this.powerUps.revive = false;
     
     if (this.powerUpTimer) {
-      this.powerUpTimer.remove();
-      this.powerUpTimer = null;
+        this.powerUpTimer.remove();
+        this.powerUpTimer = null;
+      }
+  
+      this.physics.resume();
+      this.spawnTimer.paused = false;
+      this.spawnTimer.delay = this.spawnDelay;
     }
-
-    this.physics.resume();
-    this.spawnTimer.paused = false;
-    this.spawnTimer.delay = this.spawnDelay;
-  }
   
   showAdPopup() {
     // Increment ad view count
@@ -2785,7 +2695,7 @@ class GameScene extends Phaser.Scene {
         }
       }
     });
-  }
+    }
   
     collectCoin(player, coin) {
       coin.destroy();
@@ -2850,16 +2760,48 @@ class GameScene extends Phaser.Scene {
     this.restartBtn.setVisible(false);
     this.reviveBtn.setVisible(false);
     this.menuBtn.setVisible(true);
-  }
+    }
   
     createTextures() {
       const gfx = this.make.graphics({ x: 0, y: 0, add: false });
   
-    // Player texture (red square)
-    gfx.clear(); 
-    gfx.fillStyle(0xff0000, 1); 
-    gfx.fillRect(0, 0, 32, 32); 
-    gfx.generateTexture('player', 32, 32);
+    // Player texture (person/runner) - larger size
+    gfx.clear();
+    
+    // Body (torso) - larger
+    gfx.fillStyle(0x4169E1, 1); // Royal blue shirt
+    gfx.fillRect(12, 18, 20, 18);
+    
+    // Head - larger
+    gfx.fillStyle(0xFFE4C4, 1); // Skin tone
+    gfx.fillCircle(22, 12, 8);
+    
+    // Arms - larger
+    gfx.fillStyle(0x4169E1, 1); // Blue shirt sleeves
+    gfx.fillRect(6, 20, 6, 12);  // Left arm
+    gfx.fillRect(32, 20, 6, 12); // Right arm
+    
+    // Legs - larger
+    gfx.fillStyle(0x000080, 1); // Dark blue pants
+    gfx.fillRect(14, 36, 6, 12); // Left leg
+    gfx.fillRect(24, 36, 6, 12); // Right leg
+    
+    // Shoes - larger
+    gfx.fillStyle(0x000000, 1); // Black shoes
+    gfx.fillRect(12, 48, 8, 3);  // Left shoe
+    gfx.fillRect(24, 48, 8, 3);  // Right shoe
+    
+    // Eyes - larger
+    gfx.fillStyle(0x000000, 1); // Black eyes
+    gfx.fillCircle(19, 10, 1.5);   // Left eye
+    gfx.fillCircle(25, 10, 1.5);   // Right eye
+    
+    // Hair - larger
+    gfx.fillStyle(0x8B4513, 1); // Brown hair
+    gfx.fillRect(14, 4, 16, 6);
+    gfx.fillCircle(22, 6, 6);
+    
+    gfx.generateTexture('player', 44, 52);
 
     // Ground texture (green rectangle)
     gfx.clear(); 
@@ -2867,28 +2809,64 @@ class GameScene extends Phaser.Scene {
     gfx.fillRect(0, 0, 800, 40); 
     gfx.generateTexture('ground', 800, 40);
 
-    // Obstacle textures
+    // Obstacle textures - more detailed and interesting
     gfx.clear(); 
-    gfx.fillStyle(0x000000, 1); 
-    gfx.fillRect(0, 0, 30, 30); 
+    gfx.fillStyle(0x8B4513, 1); // Brown wooden box
+    gfx.fillRect(0, 0, 30, 30);
+    gfx.fillStyle(0x654321, 1); // Darker brown for wood grain
+    gfx.fillRect(2, 2, 26, 4);  // Top plank
+    gfx.fillRect(2, 8, 26, 4);  // Middle plank
+    gfx.fillRect(2, 14, 26, 4); // Bottom plank
+    gfx.fillRect(2, 20, 26, 4); // Bottom plank 2
+    gfx.fillRect(2, 26, 26, 4); // Bottom plank 3
     gfx.generateTexture('obstacle_rect', 30, 30);
 
-    // Star obstacle
+    // Rock obstacle
     gfx.clear(); 
-    gfx.fillStyle(0xffd700, 1);
-      this.drawStar(gfx, 15, 15, 5, 15, 7);
+    gfx.fillStyle(0x696969, 1); // Dark gray base
+    gfx.fillCircle(15, 15, 14);
+    gfx.fillStyle(0x808080, 1); // Lighter gray highlights
+    gfx.fillCircle(10, 10, 4);
+    gfx.fillCircle(20, 8, 3);
+    gfx.fillCircle(18, 18, 2);
+    gfx.fillStyle(0x556B2F, 1); // Moss green
+    gfx.fillCircle(5, 5, 2);
+    gfx.fillCircle(25, 12, 1);
       gfx.generateTexture('obstacle_star', 30, 30);
   
-    // Triangle obstacle
+    // Tree stump obstacle
     gfx.clear(); 
-    gfx.fillStyle(0x800080, 1);
-      this.drawTriangle(gfx, 30, 30);
+    gfx.fillStyle(0x8B4513, 1); // Brown trunk
+    gfx.fillRect(8, 5, 14, 25);
+    gfx.fillStyle(0x654321, 1); // Darker brown rings
+    gfx.fillRect(10, 8, 10, 2);
+    gfx.fillRect(10, 12, 10, 2);
+    gfx.fillRect(10, 16, 10, 2);
+    gfx.fillRect(10, 20, 10, 2);
+    gfx.fillStyle(0x228B22, 1); // Green moss on top
+    gfx.fillRect(6, 3, 18, 4);
+    gfx.fillStyle(0x32CD32, 1); // Lighter green highlights
+    gfx.fillRect(8, 4, 14, 2);
       gfx.generateTexture('obstacle_triangle', 30, 30);
   
-    // Circle obstacle
+    // Crate obstacle
     gfx.clear(); 
-    gfx.fillStyle(0x0000ff, 1);
-      gfx.fillCircle(15, 15, 15);
+    gfx.fillStyle(0xD2691E, 1); // Orange crate
+    gfx.fillRect(0, 0, 30, 30);
+    gfx.fillStyle(0xCD853F, 1); // Lighter orange for slats
+    gfx.fillRect(2, 2, 26, 4);  // Top slat
+    gfx.fillRect(2, 8, 26, 4);  // Middle slat
+    gfx.fillRect(2, 14, 26, 4); // Bottom slat
+    gfx.fillRect(2, 20, 26, 4); // Bottom slat 2
+    gfx.fillRect(2, 26, 26, 4); // Bottom slat 3
+    gfx.fillStyle(0x8B4513, 1); // Brown vertical slats
+    gfx.fillRect(8, 2, 4, 26);  // Left vertical
+    gfx.fillRect(18, 2, 4, 26); // Right vertical
+    gfx.fillStyle(0x654321, 1); // Dark brown nails
+    gfx.fillRect(6, 6, 2, 2);
+    gfx.fillRect(22, 6, 2, 2);
+    gfx.fillRect(6, 22, 2, 2);
+    gfx.fillRect(22, 22, 2, 2);
       gfx.generateTexture('obstacle_circle', 30, 30);
   
     // Regular coin
@@ -2978,7 +2956,7 @@ class CloudManager {
 
     // Small cloud
     gfx.clear();
-    gfx.fillStyle(0xffffff, 0.8);
+    gfx.fillStyle(0xffffff, 1.0); // Full opacity for better visibility
     gfx.fillCircle(20, 15, 12);
     gfx.fillCircle(35, 15, 15);
     gfx.fillCircle(50, 15, 12);
@@ -2987,7 +2965,7 @@ class CloudManager {
 
     // Medium cloud
     gfx.clear();
-    gfx.fillStyle(0xffffff, 0.7);
+    gfx.fillStyle(0xffffff, 1.0); // Full opacity for better visibility
     gfx.fillCircle(25, 20, 15);
     gfx.fillCircle(45, 20, 18);
     gfx.fillCircle(65, 20, 15);
@@ -2997,7 +2975,7 @@ class CloudManager {
 
     // Large cloud
     gfx.clear();
-    gfx.fillStyle(0xffffff, 0.6);
+    gfx.fillStyle(0xffffff, 1.0); // Full opacity for better visibility
     gfx.fillCircle(30, 25, 18);
     gfx.fillCircle(55, 25, 22);
     gfx.fillCircle(80, 25, 18);
@@ -3008,8 +2986,10 @@ class CloudManager {
   }
 
   spawnInitialClouds() {
+    const isMenuScene = ['MainMenuScene', 'SettingsScene', 'LeaderboardScene'].includes(this.scene.constructor.name);
     const count = this.scene.constructor.name === 'GameScene' ? 5 : 
-                  this.scene.constructor.name === 'MainMenuScene' ? 4 : 3;
+                  this.scene.constructor.name === 'MainMenuScene' ? 4 : // More clouds for main menu
+                  isMenuScene ? 2 : 3;
     
     for (let i = 0; i < count; i++) {
       this.spawnCloud();
@@ -3017,8 +2997,10 @@ class CloudManager {
   }
 
   startSpawning() {
+    const isMenuScene = ['MainMenuScene', 'SettingsScene', 'LeaderboardScene'].includes(this.scene.constructor.name);
     const delay = this.scene.constructor.name === 'GameScene' ? 3000 : 
-                  this.scene.constructor.name === 'MainMenuScene' ? 4000 : 5000;
+                  this.scene.constructor.name === 'MainMenuScene' ? 4000 : // More frequent for main menu
+                  isMenuScene ? 6000 : 5000;
     
     this.spawnTimer = this.scene.time.addEvent({
       delay: delay,
@@ -3035,12 +3017,33 @@ class CloudManager {
     const cloudTypes = ['cloud_small', 'cloud_medium', 'cloud_large'];
     const cloudType = Phaser.Utils.Array.GetRandom(cloudTypes);
     
+    console.log('Spawning cloud:', cloudType, 'in scene:', this.scene.constructor.name);
+    
     // Random position on the right side of screen
     const x = GAME_CONFIG.WIDTH + Phaser.Math.Between(50, 150);
     const y = Phaser.Math.Between(50, 200);
     
     const cloud = this.scene.add.sprite(x, y, cloudType);
-    cloud.setDepth(1);
+    cloud.setDepth(0); // Set to 0 to ensure clouds are visible but behind UI elements
+    
+    // Set transparency and positioning based on scene type
+    const isMenuScene = ['MainMenuScene', 'SettingsScene', 'LeaderboardScene'].includes(this.scene.constructor.name);
+    
+    if (this.scene.constructor.name === 'MainMenuScene') {
+      // More visible clouds for main menu, less spread out
+      cloud.setAlpha(0.6); // Slightly transparent for subtle effect
+      // Concentrate clouds in the middle area of the screen
+      cloud.y = Phaser.Math.Between(120, 400);
+    } else if (isMenuScene) {
+      // More transparent and spread out for other menu scenes
+      cloud.setAlpha(0.5); // Increased visibility for other menu scenes
+      // Spread clouds across more vertical space
+      cloud.y = Phaser.Math.Between(30, 300);
+    } else {
+      // Slightly transparent for game scene to avoid distraction
+      cloud.setAlpha(0.4); // Reduced visibility for game scene
+      cloud.y = Phaser.Math.Between(50, 200);
+    }
     
     // Speed based on scene and cloud size
     let speeds;
@@ -3088,20 +3091,76 @@ class CloudManager {
 const globalCloudManager = new CloudManager();
 
 // ============================================================================
+// LOCAL STORAGE INITIALIZATION
+// ============================================================================
+// Ensures all required localStorage values are properly initialized
+// Called once when the game loads for the first time
+// ============================================================================
+
+/**
+ * Initialize localStorage with default values if they don't exist
+ * This ensures the game works properly on first load
+ */
+function initializeLocalStorage() {
+  // Check if this is the first time loading the game
+  const isFirstLoad = !localStorage.getItem('gameInitialized');
+  
+  if (isFirstLoad) {
+    console.log('First time loading game - initializing localStorage...');
+    
+    // Initialize all required localStorage values with defaults
+    localStorage.setItem('highScore', '0');                    // High score tracking
+    localStorage.setItem('currentScore', '0');                 // Current game score
+    localStorage.setItem('gamePlayCount', '0');                // Total games played
+    localStorage.setItem('adViewCount', '0');                  // Total ads viewed
+    localStorage.setItem('showAds', 'true');                   // Ads initially enabled
+    localStorage.setItem('username', 'Anonymous');             // Default username
+    localStorage.setItem('leaderboard', '[]');                 // Empty leaderboard array
+    
+    // Mark game as initialized
+    localStorage.setItem('gameInitialized', 'true');
+    
+    console.log('localStorage initialized successfully');
+  } else {
+    // Ensure critical values exist even if they were somehow deleted
+    const defaults = {
+      'highScore': '0',
+      'currentScore': '0', 
+      'gamePlayCount': '0',
+      'adViewCount': '0',
+      'showAds': 'true',
+      'username': 'Anonymous',
+      'leaderboard': '[]'
+    };
+    
+    // Check and set any missing values
+    Object.entries(defaults).forEach(([key, defaultValue]) => {
+      if (!localStorage.getItem(key)) {
+        localStorage.setItem(key, defaultValue);
+        console.log(`Missing localStorage key "${key}" restored with default value`);
+      }
+    });
+  }
+}
+
+// Initialize localStorage before creating the game
+initializeLocalStorage();
+
+// ============================================================================
 // GAME CONFIGURATION AND INITIALIZATION
 // ============================================================================
 // Phaser game configuration object
 // Defines renderer, physics, scenes, and scaling behavior
 // ============================================================================
   
-const config = {
+  const config = {
   type: Phaser.AUTO,                    // Auto-detect best renderer (WebGL or Canvas)
   width: GAME_CONFIG.WIDTH,             // Game width from configuration
   height: GAME_CONFIG.HEIGHT,           // Game height from configuration
   backgroundColor: GAME_CONFIG.BACKGROUND_COLOR,  // Background color from configuration
   
   // Physics system configuration
-  physics: {
+    physics: {
     default: 'arcade',                  // Use Arcade Physics (lightweight 2D physics)
     arcade: { 
       gravity: { y: GAME_CONFIG.GRAVITY },  // Apply gravity from configuration
@@ -3119,12 +3178,12 @@ const config = {
   ],
   
   // Scaling and display configuration
-  scale: {
+    scale: {
     mode: Phaser.Scale.FIT,             // Scale to fit screen while maintaining aspect ratio
     autoCenter: Phaser.Scale.CENTER_BOTH, // Center the game on screen
-  }
-};
+    }
+  };
   
 // Initialize the Phaser game with the configuration
-new Phaser.Game(config);
+  new Phaser.Game(config);
   
